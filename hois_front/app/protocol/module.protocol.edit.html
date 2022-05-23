@@ -1,0 +1,129 @@
+<div class="ois-form-layout-padding" ng-cloak>
+  <div flex>
+    <div ng-include="'protocol/templates/module.protocol.header.tmpl.html'"></div>
+    <form ng-submit="save()" novalidate layout="column" name="moduleProtocolForm">
+      <div>
+        <div flex>
+          <md-table-container>
+            <table md-table md-progress="protocol.$promise">
+              <thead md-head>
+                <tr md-row>
+                  <th md-column ng-if="formState.canEditProtocol" width="10">
+                    <md-input-container>
+                      <md-checkbox ng-model="formState.selectAllStudents" aria-label="selectAllStudents"
+                        ng-change="updateAllStudentsCheckBoxes(formState.selectAllStudents)">
+                      </md-checkbox>
+                    </md-input-container>
+                  </th>
+                  <th md-column>{{'main.order' | translate}}</th>
+                  <th md-column>{{'student.label' | translate}}</th>
+                  <th md-column>{{'student.studentGroup' | translate}}</th>
+                  <th md-column>{{'student.idcode' | translate}}</th>
+                  <th md-column ng-if="protocol.protocolVdata.isPractice">{{'moduleProtocol.practiceResult' | translate}}</th>
+                  <th md-column ng-if="formState.showJournals" ng-repeat="journal in journals | orderBy: 'nameEt'">
+                    <div>
+                      <a md-colors="{color: 'grey-50'}" ng-href="/#/journal/{{::journal.id}}/view">{{'P' + ($index + 1)}}</a>
+                      <md-tooltip>
+                        {{journal.nameEt}} - {{'moduleProtocol.journalCapacity' | translate:journal}}
+                      </md-tooltip>
+                    </div>
+                  </th>
+                  <th md-column ng-if="formState.showOutcomes && formState.hasOutcomes" ng-repeat="outcome in outcomes | orderBy: 'orderNr'">
+                    <div>
+                        {{'moduleProtocol.outcome' | translate}}{{outcome.orderNr + 1}}
+                      <md-tooltip>{{outcome.nameEt}}</md-tooltip>
+                    </div>
+                  </th>
+                  <th md-column>{{'moduleProtocol.moduleGrade' | translate}}</th>
+                  <th md-column ng-if="formState.canChangeConfirmedProtocolGrade">{{'moduleProtocol.changeReason' | translate}}</th>
+                  <th md-column></th>
+                </tr>
+              </thead>
+              <tbody md-body>
+                <tr md-row ng-repeat="row in protocol.protocolStudents | orderBy: 'fullname' track by $index" ng-class-odd="'odd'" ng-class-even="'even'"
+                  md-select="row.id" md-select-id="row.id">
+                  <td md-cell ng-if="formState.canEditProtocol">
+                    <md-input-container>
+                      <md-checkbox ng-model="calculateGrades.protocolStudents[row.id]" ng-hide="!row.canChangeGrade" aria-label="selectStudent">
+                      </md-checkbox>
+                    </md-input-container>
+                  </td>
+                  <td md-cell>{{$index + 1}}.</td>
+                  <td md-cell>{{row.fullname}}</td>
+                  <td md-cell>{{row.studentGroup}}</td>
+                  <td md-cell>{{row.idcode}}</td>
+                  <td md-cell ng-if="protocol.protocolVdata.isPractice">
+                    <span ng-repeat="journalResult in row.practiceJournalResults | orderBy: 'inserted'">
+                      <span>
+                        <span ng-class="{badResult: !gradeUtil.isPositive(journalResult.grade.code)}">{{journalResult.grade | hoisVocationalGrade}}</span>
+                        <md-tooltip>
+                          <span ng-if="journalResult.themes.length === 0">{{currentLanguageNameField(protocol.protocolVdata.curriculumVersionOccupationModule)}}</span>
+                          <span ng-if="journalResult.themes.length > 0" ng-repeat="theme in journalResult.themes track by $index">
+                            <span ng-if="!$first">,</span>
+                            <span>{{currentLanguageNameField(theme)}}</span>
+                          </span>
+                        </md-tooltip>
+                        <span ng-if="!$last">/</span>
+                      </span>
+                    </span>
+                  </td>
+                  <td md-cell ng-if="formState.showJournals" ng-repeat="journal in journals | orderBy: 'nameEt'">
+                    <span ng-if="protocolStudentJournalResults[row.id] && protocolStudentJournalResults[row.id][journal.id]"
+                      ng-repeat="grade in protocolStudentJournalResults[row.id][journal.id]">
+                      <span ng-class="{badResult: !gradeUtil.isPositive(grade.code)}">{{grade | hoisVocationalGrade}}</span>
+                      <span ng-if="!$last">/</span>
+                    </span>
+                  </td>
+                  <td md-cell ng-if="formState.showOutcomes && formState.hasOutcomes" ng-repeat="outcome in outcomes | orderBy: 'orderNr'">
+                    <span ng-if="protocolStudentOutcomeResults[row.id] && protocolStudentOutcomeResults[row.id][outcome.id]">
+                      <span ng-class="{badResult: !gradeUtil.isPositive(protocolStudentOutcomeResults[row.id][outcome.id].code)}">{{protocolStudentOutcomeResults[row.id][outcome.id] | hoisVocationalGrade}}</span>
+                    </span>
+                  </td>
+                  <td md-cell>
+                    <hois-grade-select class="protocolGradeSelect" ng-model="row.grade" values="grades" aria-label="grade" ng-change="gradeChanged(row)"
+                      ng-disabled="!formState.canEditProtocol || !row.canChangeGrade"></hois-grade-select>
+                  </td>
+                  <td md-cell ng-if="formState.canChangeConfirmedProtocolGrade">
+                    <md-input-container ng-if="row.gradeHasChanged">
+                      <input ng-model="row.addInfo" aria-label="addInfo" type="text" md-maxlength="255" ng-change="addInfoChanged(row);" required>
+                    </md-input-container>
+                    <span ng-if="row.addInfo && !row.gradeHasChanged">
+                      {{row.addInfo}}
+                    </span>
+                  </td>
+                  <td md-cell>
+                    <a ng-if="row.canBeDeleted && formState.canAddDeleteStudents" ng-click="deleteProtocolStudent(row)" class="remove">&times;</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </md-table-container>
+        </div>
+      </div>
+      <br>
+      <div layout="row">
+        <md-button ng-if="formState.canEditProtocol" class="md-raised" ng-click="calculate()" ng-disabled="!formState.selectedStudentsExist">{{'higherProtocol.calculate' | translate}}</md-button>
+      </div>
+      <br>
+      <div>
+        <md-button ng-if="formState.canEditProtocol && protocol.status.code !== 'PROTOKOLL_STAATUS_K'" class="md-raised md-primary" type="submit">{{'main.button.save' | translate}}</md-button>
+        <md-button ng-if="formState.canAddDeleteStudents" class="md-raised" ng-click="addProtocolStudents()">{{'moduleProtocol.addStudents' | translate}}</md-button>
+        <hois-button ng-if="formState.canConfirm===true" class="md-primary md-raised" hb-click="confirm()" hb-label="{{'main.button.confirm' | translate}}" hb-loading hb-promise></hois-button>
+        <md-button ng-if="protocol.canBeDeleted" class="md-raised" ng-click="delete()">{{'main.button.delete' | translate}}</md-button>
+        <a ng-show="formState.protocolPdfUrl" ng-href="{{formState.protocolPdfUrl}}" target="_blank" class="md-button md-raised">{{'main.button.print' | translate}}</a>
+        <a ng-show="protocol.oisFile" ng-href="{{getUrl(protocol.oisFile, 'protocol')}}" target="_blank" rel="noopener noreferrer"
+          class="md-button md-raised">{{'moduleProtocol.downloadSigned' | translate}}</a>
+        <md-button class="md-raised" ng-click="back('#/moduleProtocols/', moduleProtocolForm)">{{'main.button.back' | translate}}</md-button>
+      </div>
+    </form>
+  </div>
+  <div>&nbsp;</div>
+  <div flex>
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'moduleProtocol.studyOutcomes' | translate}}</legend>
+      <div ng-repeat="outcome in protocol.protocolVdata.outcomes | orderBy: 'orderNr'" flex class="md-body-1">
+        <div>{{outcome.orderNr + 1}}. {{currentLanguageNameField(outcome)}}</div>
+      </div>
+    </fieldset>
+  </div>
+</div>

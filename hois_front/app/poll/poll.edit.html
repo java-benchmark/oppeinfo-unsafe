@@ -1,0 +1,286 @@
+
+<div id="scrolling_div" style="overflow: auto;">
+    <md-nav-bar md-selected-nav-item="currentNavItem" nav-bar-aria-label="main selection" ng-cloak>
+        <md-nav-item ng-if="!criteria.id" md-nav-href="#/poll/new?_noback" name="poll.data">
+            {{'poll.basicData.label' | translate}}</md-nav-item>
+        <md-nav-item ng-if="(auth.isAdmin() || auth.isLeadingTeacher()) && criteria.id" md-nav-href="#/poll/{{::criteria.id}}/edit?_noback" name="poll.data">
+            {{'poll.basicData.label' | translate}}</md-nav-item>
+        <md-nav-item ng-if="(auth.isAdmin() || auth.isLeadingTeacher()) && criteria.id" md-nav-href="#/poll/questions/{{::criteria.id}}/edit?_noback" name="poll.questions">
+            {{'poll.questions.label' | translate}}</md-nav-item>
+        <md-nav-item ng-if="(auth.isAdmin() || auth.isLeadingTeacher()) && criteria.id && formState.status.code === 'KYSITLUS_STAATUS_K'" md-nav-href="#/poll/results/{{::criteria.id}}/edit?_noback" name="poll.results">
+            {{'poll.results' | translate}}</md-nav-item>
+    </md-nav-bar>
+</div>
+  
+<div class="ois-form-layout-padding ois-form-layout" layout="row" ng-cloak>
+    <form name="pollForm" role="form" class="nomargin" ng-submit="save()" flex novalidate>
+        <div layout="column" flex>
+            <div layout="row">
+                <md-input-container flex="50" flex-xs="100">
+                    <label>{{'poll.type' | translate}}</label>
+                    <hois-classifier-select ng-model="criteria.type" model-value-attr="code" main-classifier-code="KYSITLUS" ng-disabled="disabled" required ng-change="emptyLists() && checkCases()"></hois-classifier-select>
+                </md-input-container>
+            </div>
+            <div ng-if="criteria.type !== undefined" layout="column" flex>
+                <md-input-container>
+                    <label class="textInput">{{'poll.basicData.name' | translate}}</label>
+                    <input ng-model="criteria.nameEt" type="text" md-maxlength="255" name="nameEt" ng-blur="checkNames(criteria.nameEt)" required>
+                    <ng-messages for="pollForm.nameEt.$error" role="alert">
+                        <ng-message when="incorrectName">{{'poll.basicData.nameError' | translate}}</ng-message>
+                    </ng-messages>
+                </md-input-container>
+                <md-input-container>
+                    <label class="textInput">{{'poll.basicData.foreWord' | translate}}</label>
+                    <textarea ng-model="criteria.foreword" md-maxlength="4000" max-rows="4"></textarea>
+                </md-input-container>
+                <md-input-container>
+                    <label class="textInput">{{'poll.basicData.afterWord' | translate}}</label>
+                    <textarea ng-model="criteria.afterword" md-maxlength="4000" max-rows="4"></textarea>
+                </md-input-container>
+                <fieldset>
+                <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'poll.basicData.target' | translate}}</legend>
+                    <div layout="row" layout-xs="column" ng-if="criteria.type !== 'KYSITLUS_O' && criteria.type !== 'KYSITLUS_T' && criteria.type !== 'KYSITLUS_V'">
+                        <div flex="50" flex-xs="100">
+                            <div layout="column" flex>
+                                <md-input-container>
+                                    <label>{{'poll.chooseTarget' | translate}} <span>*</span></label>
+                                    <hois-select ng-model="formState.targetCode" value-property="code" values="formState.aim | filter: targetCodeFilter" ng-change="addTargetCode()" aria-label="targetcodes"></hois-select>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <md-button flex-offset="5" flex-offset-xs="0" ng-click="addAllTargetCodes()" class="md-raised">{{"poll.basicData.pickAll" | translate}}</md-button>
+                        <md-button ng-if="formState.targetCodes.length > 0" flex-offset-xs="0" ng-click="removeAllTargetCodes()" class="md-raised">{{"poll.basicData.removeAll" | translate}}</md-button>
+                    </div>
+                    <div ng-if="formState.targetCodes.length > 0" layout="row">
+                        <md-table-container flex="50" style="max-height: 200px">
+                            <table md-table class="secondary-table">
+                                <tbody md-body>
+                                <tr md-row ng-repeat="targetCode in formState.targetCodes" ng-class-odd="'odd'" ng-class-even="'even'">
+                                    <td md-cell>{{currentLanguageNameField(targetCode)}}</td>
+                                    <td md-cell>
+                                    <a ng-click="deleteTargetCode(targetCode)" ng-if="criteria.type !== 'KYSITLUS_O' && criteria.type !== 'KYSITLUS_T' && criteria.type !== 'KYSITLUS_V'" class="remove">&times;</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <div layout="row" flex="45" flex-offset="5">
+                            <div layout="column" flex>
+                                <div ng-if="criteria.type === 'KYSITLUS_T' || (criteria.type === 'KYSITLUS_Y' && showOccupations)" layout="row">
+                                    <md-input-container flex>
+                                        <label>{{auth.isHigher ? 
+                                            ('main.menu.settings.teacheroccupationsHigher' | translate) :
+                                            ('main.menu.settings.teacheroccupationsVocational' | translate)}}
+                                        </label>
+                                        <hois-select ng-model="criteria.teacherOccupations" values="formState.occupations" multiple></hois-select>
+                                    </md-input-container>
+                                </div>
+                                <div layout="row" layout-xs="column" ng-if="criteria.type === 'KYSITLUS_P' || (criteria.type === 'KYSITLUS_Y' && showJournalDates)">
+                                    <md-input-container flex-xs="100">
+                                        <label>{{'poll.basicData.journalFrom' | translate}}</label>
+                                        <md-datepicker name="from" ng-model="criteria.journalFrom" md-max-date="criteria.journalThru" required></md-datepicker>
+                                    </md-input-container>
+                                    <md-input-container flex-xs="100">
+                                        <label>{{'poll.basicData.journalThru' | translate}}</label>
+                                        <md-datepicker name="thru" ng-model="criteria.journalThru" md-min-date="criteria.journalFrom" required></md-datepicker>
+                                    </md-input-container>
+                                </div>
+                                <div layout="row" ng-if="auth.higher && criteria.type === 'KYSITLUS_O'">
+                                    <md-input-container flex>
+                                        <label>{{'poll.basicData.declarationPeriod' | translate}}</label>
+                                        <hois-select ng-model="criteria.studyPeriod" type="studyperiodyear" sorted-query="true" ng-if="criteria.id"
+                                        ng-required="auth.higher && (criteria.journals === undefined || criteria.journals.length === 0)" 
+                                        aria-label="studyperiod" ng-change="removeAllSubjectStudyPeriods()"></hois-select>
+                                        <hois-select ng-model="criteria.studyPeriod" type="studyperiodyear" sorted-query="true" ng-if="!criteria.id"
+                                        ng-required="auth.higher && (criteria.journals === undefined || criteria.journals.length === 0)" 
+                                        preselect-current aria-label="studyperiod" ng-change="removeAllSubjectStudyPeriods()"></hois-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="form-readonly" ng-if="showExpertUrl && criteria.id">
+                                    <div layout="row" layout-xs="column" style="margin-top: 10px;">
+                                        <md-input-container flex>
+                                            <label>{{'poll.basicData.outsiderUrl' | translate}}</label>
+                                            <hois-value value="criteria.pollUrl"></hois-value>
+                                        </md-input-container>
+                                        <md-button copy-to-clipboard="{{criteria.pollUrl}}">{{'poll.basicData.copy' | translate}}</md-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="studentGroupAllowed">
+                        <div layout="row" layout-xs="column">
+                            <hois-autocomplete label="poll.studentgroup" flex="50" flex-xs="100" ng-model="formState.studentgroup" method="studentgroups" additional-query-params="{valid: true}"></hois-autocomplete>
+                            <md-button flex-offset="5" flex-offset-xs="0" ng-click="addAllStudentgroups()" class="md-raised">{{"poll.basicData.pickAll" | translate}}</md-button>
+                            <md-button ng-if="criteria.journals.length > 0" flex-offset-xs="0" ng-click="removeAllStudentgroups()" class="md-raised">{{"poll.basicData.removeAll" | translate}}</md-button>
+                        </div>
+                        <div ng-if="formState.studentGroups.length > 0" layout="row">
+                            <md-table-container flex="50" flex-xs="100" style="max-height: 200px">
+                                <table md-table class="secondary-table">
+                                    <thead md-head ng-hide="true">
+                                        <tr md-row>
+                                            <th md-column width="90%"></th>
+                                            <th md-column width="10%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                    <tr md-row ng-repeat="studentgroup in formState.studentGroups" ng-class-odd="'odd'" ng-class-even="'even'">
+                                        <td md-cell>{{currentLanguageNameField(studentgroup)}}</td>
+                                        <td md-cell>
+                                        <a ng-click="deleteStudentgroup(studentgroup)" class="remove">&times;</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+                    </div>
+                    <div layout="column" ng-if="criteria.type === 'KYSITLUS_O'">
+                        <div layout="column" ng-if="!auth.higher || (auth.higher && auth.vocational)">
+                            <div layout="row">
+                                <hois-autocomplete flex="50" ng-model="formState.journal" method="journalsAndStudentGroups" name="journals" 
+                                label="poll.basicData.journalsRequired" ng-if="criteria.subjectStudyPeriods === undefined || criteria.subjectStudyPeriods.length === 0"></hois-autocomplete>
+                                <hois-autocomplete flex="50" ng-model="formState.journal" method="journalsAndStudentGroups" name="journals" 
+                                label="poll.basicData.journals" ng-if="criteria.subjectStudyPeriods.length > 0"></hois-autocomplete>
+                                <md-button flex-offset="5" flex-offset-xs="0" ng-click="addAllJournals()" class="md-raised">{{"poll.basicData.pickAll" | translate}}</md-button>
+                                <md-button ng-if="criteria.journals.length > 0" flex-offset-xs="0" ng-click="removeAllJournals()" class="md-raised">{{"poll.basicData.removeAll" | translate}}</md-button>
+                            </div>
+                            <div layout="row">
+                                <div layout="column" flex="50">
+                                    <md-table-container>
+                                        <table md-table class="secondary-table">
+                                            <tbody md-body>
+                                                <tr md-row ng-repeat="journal in criteria.journals|limitTo:5" ng-class-odd="'odd'" ng-class-even="'even'">
+                                                    <td md-cell>{{currentLanguageNameField(journal)}}</td>
+                                                    <td md-cell>
+                                                        <md-button class="remove nomargin" ng-click="removeJournal(journal)">&times;</md-button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                    <div layout="row">
+                                        <a ng-if="criteria.journals.length > 5" ng-click="viewMoreOfList(criteria.journals, true, true)" style="font-size: 13px;">
+                                            {{'poll.basicData.viewMore' | translate}}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div layout="column" ng-if="auth.higher">
+                            <div layout="row" ng-if="!!criteria.studyPeriod">
+                                <hois-autocomplete flex="50" ng-model="formState.subjectStudyPeriod" method="subjectStudyPeriods" name="subjectStudyPeriods" 
+                                    label="poll.basicData.subjectStudyPeriodsRequired" additional-query-params="{studyPeriod: criteria.studyPeriod}" 
+                                    ng-if="!auth.vocational">
+                                </hois-autocomplete>
+                                <hois-autocomplete flex="50" ng-model="formState.subjectStudyPeriod" method="subjectStudyPeriods" name="subjectStudyPeriods" 
+                                    label="poll.basicData.subjectStudyPeriods" additional-query-params="{studyPeriod: criteria.studyPeriod}" 
+                                    ng-if="auth.vocational">
+                                </hois-autocomplete>
+                                <md-button flex-offset="5" flex-offset-xs="0" ng-click="addAllSubjectStudyPeriods()" class="md-raised">{{"poll.basicData.pickAll" | translate}}</md-button>
+                                <md-button ng-if="criteria.subjectStudyPeriods.length > 0" flex-offset-xs="0" ng-click="removeAllSubjectStudyPeriods()" class="md-raised">{{"poll.basicData.removeAll" | translate}}</md-button>
+                            </div>
+                            <div layout="row">
+                                <div layout="column" flex="50">
+                                    <md-table-container>
+                                        <table md-table class="secondary-table">
+                                            <tbody md-body>
+                                                <tr md-row ng-repeat="subjectStudyPeriod in criteria.subjectStudyPeriods|limitTo:5" ng-class-odd="'odd'" ng-class-even="'even'">
+                                                    <td md-cell>{{currentLanguageNameField(subjectStudyPeriod)}}</td>
+                                                    <td md-cell>
+                                                        <md-button class="remove nomargin" ng-click="removeSubjectStudyPeriod(subjectStudyPeriod)">&times;</md-button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                    <div layout="row">
+                                        <a ng-if="criteria.subjectStudyPeriods.length > 5" ng-click="viewMoreOfList(criteria.subjectStudyPeriods, false, true)" style="font-size: 13px;">
+                                            {{'poll.basicData.viewMore' | translate}}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div>&nbsp;</div>
+                <md-input-container ng-if="criteria.type === 'KYSITLUS_O'">
+                    <md-checkbox ng-model="criteria.isTeacherComment" aria-label="required" ng-checked="formState.isTeacherComment">
+                        {{'poll.basicData.teacherCanComment' | translate}}
+                    </md-checkbox>
+                </md-input-container>
+                <md-input-container ng-if="criteria.type === 'KYSITLUS_O' && criteria.isTeacherComment">
+                    <md-checkbox ng-model="criteria.isTeacherCommentVisible" aria-label="required" ng-checked="formState.isTeacherCommentVisible">
+                        {{'poll.basicData.teacherCommentVisible' | translate}}
+                    </md-checkbox>
+                </md-input-container>
+                <md-input-container ng-if="criteria.type === 'KYSITLUS_O'">
+                    <md-checkbox ng-model="criteria.isStudentVisible" aria-label="required">
+                        {{'poll.basicData.studentCanSeeResponse' | translate}}
+                    </md-checkbox>
+                </md-input-container>
+                <div layout="row">
+                    <div flex="50" flex-xs="100">
+                        <md-input-container flex="50">
+                            <label>{{'main.validFrom' | translate}}</label>
+                            <md-datepicker name="from" ng-model="criteria.validFrom" md-max-date="earlierDate(criteria.reminderDt, criteria.validThru)" required ng-change="checkReminder()"></md-datepicker>
+                        </md-input-container>
+                        <md-input-container flex="50" flex-offset="5" flex-offset-xs="0">
+                            <label>{{'main.validThru' | translate}}</label>
+                            <md-datepicker name="thru" ng-model="criteria.validThru" md-min-date="laterDate(criteria.reminderDt, criteria.validFrom)" required ng-change="checkReminder()"></md-datepicker>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div layout="row">
+                    <md-input-container flex="25" flex-xs="50">
+                        <label>{{'poll.basicData.notificationDate' | translate}}</label>
+                        <md-datepicker id="notificationDate" name="reminderDt" ng-model="criteria.reminderDt" md-min-date="criteria.validFrom" md-max-date="criteria.validThru" ng-change="checkReminder()" required></md-datepicker>
+                        <ng-messages for="pollForm.reminderDt.$error" role="alert">
+                            <ng-message when="incorrect">{{'poll.basicData.reminderError' | translate}}</ng-message>
+                        </ng-messages>
+                    </md-input-container>
+                </div>
+                <div layout="column" class="form-readonly" flex>
+                    <div layout="column" ng-if="formState.insertedBy !== undefined">
+                        <div style="height: 19px"></div>
+                        <div layout="row">
+                            <md-input-container flex="25" flex-xs="100">
+                                <label>{{'poll.basicData.insertedBy' | translate}}</label>
+                                <hois-value value="formState.insertedBy"></hois-value>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div layout="column" ng-if="formState.changedBy !== undefined">
+                        <div style="height: 19px"></div>
+                        <div layout="row">
+                            <md-input-container flex="25" flex-xs="100">
+                                <label>{{'poll.basicData.changedBy' | translate}}</label>
+                                <hois-value value="formState.changedBy"></hois-value>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div layout="column" ng-if="formState.status !== undefined">
+                        <div style="height: 19px"></div>
+                        <div layout="row">
+                            <md-input-container flex="25" flex-xs="100">
+                                <label>{{'poll.basicData.status' | translate}}</label>
+                                <hois-value value="currentLanguageNameField(formState.status)"></hois-value>
+                            </md-input-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div layout="row" ng-if="!criteria.type">
+                <md-button flex-xs="100" ng-if="auth.isAdmin() || auth.isLeadingTeacher()" ng-click="back('#/poll', pollForm, 'poll.confirmBack')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+            </div>
+        </div>
+        <div layout="row" layout-xs="column" ng-if="criteria.type">
+            <md-button flex-xs="100" ng-if="auth.isAdmin() || auth.isLeadingTeacher()" type="submit" class="md-raised md-primary">{{'main.button.save' | translate}}</md-button>
+            <md-button flex-xs="100" ng-if="(auth.isAdmin() || auth.isLeadingTeacher()) && formState.status !== undefined && formState.status.code === 'KYSITLUS_STAATUS_E'" ng-click="confirm()" class="md-raised">{{'main.button.confirm' | translate}}</md-button>
+            <md-button flex-xs="100" ng-if="(auth.isAdmin() || auth.isLeadingTeacher()) && formState.status !== undefined && formState.status.code === 'KYSITLUS_STAATUS_E'" ng-click="deletePoll()" class="md-raised">{{'main.button.delete' | translate}}</md-button>
+            <md-button flex-xs="100" ng-if="(auth.isAdmin() || auth.isLeadingTeacher()) && criteria.id" ng-click="test()" class="md-raised">{{'poll.test' | translate}}</md-button>
+            <md-button flex-xs="100" ng-if="auth.isAdmin() || auth.isLeadingTeacher()" ng-click="back('#/poll', pollForm, 'poll.confirmBack')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,52 @@
+<div layout="column" layout-padding>
+    <form name="certificateEditForm">
+        <div layout="column" class="form-readonly">
+            <md-input-container>
+                <label>{{'certificate.type' | translate}}</label>
+                <hois-classifier-value ng-model="record.type" main-classifier-code="TOEND_LIIK"></hois-classifier-value>
+            </md-input-container>
+            <md-input-container>
+                <label>{{'certificate.headline' | translate}}</label>
+                <textarea ng-model="record.headline" required md-maxlength="1000" max-rows="2" readonly></textarea>
+            </md-input-container>
+            <md-input-container>
+                <label>{{'certificate.whom' | translate}}</label>
+                <input type="text" ng-model="record.whom" md-maxlength="255">
+            </md-input-container>
+            <div layout="row" ng-if="record.type === 'TOEND_LIIK_SOOR'">
+                <md-input-container>
+                  <md-checkbox ng-model="record.showModules" ng-change="reloadContent()">{{'certificate.showModules' | translate}}</md-checkbox>
+                </md-input-container>
+                <md-input-container ng-if="!record.id" flex-offset="5">
+                    <md-checkbox ng-model="record.addOutcomes" ng-change="reloadContent()">{{'certificate.addOutcomes' | translate}}</md-checkbox>
+                </md-input-container>
+                <md-input-container ng-if="!record.id && studentType === 'OPPUR_K'" flex-offset="5">
+                    <md-checkbox ng-model="record.showUncompleted" ng-change="reloadContent()">
+                        {{auth.higher ? ('certificate.showUncompletedSubjects' | translate) : ('certificate.showUncompletedJournals' | translate)}}
+                    </md-checkbox>
+                </md-input-container>
+            </div>
+            <div layout="row" ng-if="!record.id && record.type === 'TOEND_LIIK_SOOR'">
+                <md-radio-group layout-gt-sm="row" ng-model="record.estonian" ng-change="reloadContent()">
+                    <md-radio-button ng-value="true" aria-label="estonian">
+                        {{'document.estonian' | translate}}
+                    </md-radio-button>
+                    <md-radio-button ng-value="false" aria-label="english">
+                        {{'document.english' | translate}}
+                    </md-radio-button>
+                </md-radio-group>
+            </div>
+            <div>&nbsp;</div>
+            <md-input-container>
+                <label class="common-label" ng-show="record.content">{{'certificate.content' | translate}}</label>
+                <md-table-container>
+                    <div id="content" class="md-body-1"></div>
+                </md-table-container>
+            </md-input-container>
+        </div>
+        <div layout="row">
+            <md-button class="md-raised md-primary" ng-click="save()">{{'certificate.order' | translate}}</md-button>
+            <md-button class="md-raised md-default" ng-click="back('#/certificate', certificateEditForm)">{{'main.button.back' | translate}}</md-button>
+        </div>
+    </form>
+</div>

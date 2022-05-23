@@ -1,0 +1,175 @@
+<div class="ois-form-layout-padding ois-form-layout form-readonly" ng-cloak>
+  <form name="schoolForm">
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.name' | translate}}</label>
+      <hois-value value="school.nameEt"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.nameGenitiveEt' | translate}}</label>
+      <hois-value value="school.nameGenitiveEt"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.code' | translate}}</label>
+      <hois-value value="school.code"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.regNr' | translate}}</label>
+      <hois-value value="school.regNr"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.ehisId' | translate}}</label>
+      <hois-value value="school.ehisId"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.nameEn' | translate}}</label>
+      <hois-value value="school.nameEn"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.email' | translate}}</label>
+      <hois-value value="school.email"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.phone' | translate}}</label>
+      <hois-value value="school.phone"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.address' | translate}}</label>
+      <hois-value value="school.address"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.generateUserEmail' | translate}}</label>
+      <hois-value value="school.generateUserEmail ? 'main.yes' : 'main.no' | translate"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.emailDomain' | translate}}</label>
+      <hois-value value="school.emailDomain"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.rtipSchoolCode' | translate}}</label>
+      <hois-value value="school.rtipSchoolCode"></hois-value>
+    </md-input-container>
+
+    <div layout="row" layout-xs="column">
+      <md-input-container class="md-block" flex>
+        <label class="textInput">{{'school.isNotAbsence' | translate}}</label>
+        <hois-value value="school.isNotAbsence ? 'main.yes' : 'main.no' | translate"></hois-value>
+      </md-input-container>
+
+      <md-input-container class="md-block" flex>
+        <label class="textInput">{{'school.isMinorStudentAbsence' | translate}}</label>
+        <hois-value value="school.isMinorStudentAbsence ? 'main.yes' : 'main.no' | translate"></hois-value>
+      </md-input-container>
+    </div>
+
+    <md-input-container ng-if="school.type.higher" class="md-block">
+      <label class="textInput">{{'school.isLetterGrade' | translate}}</label>
+      <hois-value value="school.isLetterGrade ? 'main.yes' : 'main.no' | translate"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.isWithoutEkis' | translate}}</label>
+      <hois-value value="school.isWithoutEkis ? 'school.notUsing' : 'school.using' | translate"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.isStudentTerms' | translate}}</label>
+      <hois-value value="school.isStudentTerms ? 'main.yes' : 'main.no' | translate"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block" ng-if="school.type.higher">
+      <label class="textInput">{{'school.isHmodules' | translate}}</label>
+      <hois-value value="school.isHmodules ? 'main.yes' : 'main.no' | translate"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block" ng-if="school.type.higher">
+      <label class="textInput">{{'school.isStudentDeclarationDelete' | translate}}</label>
+      <hois-value value="school.isStudentDeclarationDelete ? 'main.yes' : 'main.no' | translate"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.isNotPublic.label' | translate}}</label>
+      <hois-value value="(school.isNotPublicSettings).join(', ')"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.studentPhotoAdd' | translate}}</label>
+      <hois-classifier-value ng-model="school.studentPhotoAdd" main-classifier-code="FOTOLISA"></hois-classifier-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.timetable' | translate}}</label>
+      <hois-classifier-value ng-model="school.timetable" main-classifier-code="TIMETABLE"></hois-classifier-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.adUrl' | translate}}</label>
+      <hois-value value="school.adUrl"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.adPort' | translate}}</label>
+      <hois-value value="school.adPort"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.adDomain' | translate}}</label>
+      <hois-value value="school.adDomain"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.adBase' | translate}}</label>
+      <hois-value value="school.adBase"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.adIdcodeField' | translate}}</label>
+      <hois-value value="school.adIdcodeField"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.finalSchoolType' | translate}}</label>
+      <hois-value value="school.finalSchoolType"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.final62' | translate}}</label>
+      <hois-value value="school.final62"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.finalSchoolTypeEn' | translate}}</label>
+      <hois-value value="school.finalSchoolTypeEn"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.finalEn62' | translate}}</label>
+      <hois-value value="school.finalEn62"></hois-value>
+    </md-input-container>
+
+    <md-input-container class="md-block">
+      <label class="textInput">{{'school.ekisUrl' | translate}}</label>
+      <hois-value value="school.ekisUrl"></hois-value>
+    </md-input-container>
+
+  </form>
+
+  <h3 ng-if="school.logo">{{'school.logo.currentLogo' | translate}}</h3>
+  <div>
+    <img ng-if="school.logo" ng-src="{{school.imageUrl}}">
+  </div>
+  <br>
+
+  <md-button ng-href="#/school/{{school.id}}/edit" class="md-raised md-primary">{{'main.button.change' | translate}}</md-button>
+  <md-button ng-href="#/school" class="md-raised">{{'main.button.back' | translate}}</md-button>
+</div>

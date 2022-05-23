@@ -1,0 +1,85 @@
+<div ng-if="auth.higher && currentNavItem" ng-include="'scholarship/scholarship.navbar.html'"></div>
+<div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+
+  <div layout="column">
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'main.searchlabel' | translate}}</legend>
+      <form ng-submit="loadData()" novalidate ng-model-options="{allowInvalid: true}">
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{formState.typeIsScholarship ? 'stipend.scholarshipType' : 'stipend.grantType' | translate}}</label>
+            <hois-classifier-select ng-model="criteria.type" name="type" model-value-attr="code" main-classifier-code="STIPTOETUS" show-only-values="allowedStipendTypes"></hois-classifier-select>
+          </md-input-container>
+        </div>
+
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{'stipend.studyPeriod' | translate}}</label>
+            <hois-select ng-model="criteria.studyPeriod" type="studyperiodyear" sorted-query="true" preselect-current></hois-select>
+          </md-input-container>
+        </div>
+
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{formState.typeIsScholarship ? 'stipend.scholarshipName' : 'stipend.grantName' | translate}}</label>
+            <input type="text" ng-model="criteria.nameEt" name="nameEt" md-maxlength="500">
+          </md-input-container>
+        </div>
+
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{'stipend.status' | translate}}</label>
+            <md-select ng-model="criteria.isOpen">
+              <md-option md-option-empty></md-option>
+              <md-option value="0">{{'stipend.underRevision' | translate}}</md-option>
+              <md-option value="1">{{'stipend.published' | translate}}</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+
+        <div layout="row">
+          <md-button type="submit" class="md-raised md-primary">{{'main.button.search' | translate}}</md-button>
+          <md-button class="md-raised" ng-click="clearCriteria()">{{'main.button.clear' | translate}}</md-button>
+          <md-button class="md-raised" ng-if="canEdit" ng-href="#/scholarships/{{scholarshipType}}/new">{{'main.button.create' | translate}}</md-button>
+        </div>
+      </form>
+    </fieldset>
+
+    <div>&nbsp;</div>
+
+    <md-table-container ng-cloak>
+      <table md-table md-progress="tabledata.$promise">
+        <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+          <tr md-row>
+            <th md-column md-order-by="st.type_code">{{'stipend.type' | translate}}</th>
+            <th md-column md-order-by="st.nameEt">{{'stipend.name' | translate}}</th>
+            <th md-column md-order-by="st.applicationStart">{{'stipend.applicationPeriod' | translate}}</th>
+            <th md-column md-order-by="st.places">{{'stipend.places' | translate}}</th>
+            <th md-column md-order-by="st.isOpen">{{'stipend.status' | translate}}</th>
+            <th md-column></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell class="one-row">{{currentLanguageNameField(row.type)}}</td>
+            <td md-cell>
+              <a ng-href="#/scholarships/{{row.id}}/view">{{::row.nameEt}}</a>
+            </td>
+            <td md-cell>{{::row.applicationStart | hoisDate}} - {{::row.applicationEnd | hoisDate}}</td>
+            <td md-cell>{{::row.places}}</td>
+            <td md-cell>{{row.isOpen ? 'stipend.published' : 'stipend.underRevision' | translate}}</td>
+            <td md-cell>
+              <md-button md-no-ink class="md-primary change-button" ng-if="canEdit" ng-click="changeStipend(row)">
+                {{'main.button.change' | translate}}
+              </md-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" md-total="{{tabledata.totalElements}}"
+      md-on-paginate="loadData" md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}' }"
+      md-page-select></md-table-pagination>
+  </div>
+</div>

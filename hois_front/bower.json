@@ -1,0 +1,43 @@
+{
+  "name": "hitsa-ois",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "1.7.8",
+    "angular-animate": "1.7.8",
+    "angular-aria": "1.7.8",
+    "angular-chart.js": "1.1.1",
+    "angular-messages": "1.7.8",
+    "angular-resource": "1.7.8",
+    "angular-route": "1.7.8",
+    "angular-sanitize": "1.7.8",
+    "angular-material": "1.1.19",
+    "angular-translate": "2.18.1",
+    "angular-translate-loader-static-files": "2.18.1",
+    "angular-material-data-table": "0.10.10",
+    "lf-ng-md-file-input": "1.5.3",
+    "moment": "2.27.0",
+    "moment-timezone": "0.5.31",
+    "ng-storage": "0.4.2",
+    "angular-cache": "^4.6.0",
+    "hwcrypto": "0.0.11",
+    "angularjs-color-picker": "3.4.8",
+    "chart.js": "^2.8.0",
+    "angular-inview": "3.1.0"
+  },
+  "overrides": {
+    "hwcrypto": {
+      "dependencies": {
+        "native-promise-only": "~0.7.6-a"
+      }
+    }
+  },
+  "devDependencies": {
+    "angular-mocks": "1.7.8"
+  },
+  "appPath": "app",
+  "moduleName": "hitsaOis",
+  "resolutions": {
+    "angular": "^1.7.8",
+    "angular-translate": "2.18.1"
+  }
+}

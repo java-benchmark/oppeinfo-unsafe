@@ -1,0 +1,41 @@
+<div layout="column" layout-padding>
+  <div flex>
+    <form name="buildingForm">
+      <md-input-container class="md-block">
+        <label>{{'building.name' | translate}}</label>
+        <input ng-model="record.name" name="name" type="text" md-maxlength="255" required>
+        <div ng-messages="buildingForm.name.$error">
+          <div ng-message="md-maxlength">
+            {{'main.messages.error.maxlength' | translate}}
+          </div>
+        </div>
+      </md-input-container>
+
+      <md-input-container class="md-block">
+        <label class="textInput">{{'building.code' | translate}}</label>
+        <input ng-model="record.code" name="code" type="text" md-maxlength="20" ng-model-options="{debounce: 250}" unique="buildingUniqueQuery" required>
+        <div ng-messages="buildingForm.code.$error">
+          <div ng-message="md-maxlength">
+            {{'main.messages.error.maxlength' | translate}}
+          </div>
+          <div ng-message="notUnique">
+            {{'building.alreadyexist' | translate}}
+          </div>
+        </div>
+      </md-input-container>
+
+      <md-div class="md-block">
+        <hois-ads-adapter class="md-text" ng-model="record.addressAds" ads-oid-model="record.addressAdsOid" address-model="record.address"></hois-ads-adapter>
+      </md-div>
+
+      <div>&nbsp;</div>
+      <md-input-container flex>
+        <md-checkbox ng-model="record.isDormitory" aria-label="{{'building.boardingSchool' | translate}}">{{'building.boardingSchool' | translate}}</md-checkbox>
+      </md-input-container>
+    </form>
+
+    <md-button ng-click="update()" class="md-raised md-primary">{{'main.button.save' | translate}}</md-button>
+    <md-button ng-click="delete()" ng-show="record.id" class="md-raised">{{'main.button.delete' | translate}}</md-button>
+    <md-button ng-click="back('#/rooms/search', buildingForm)" class="md-raised">{{'main.button.back' | translate}}</md-button>
+  </div>
+</div>

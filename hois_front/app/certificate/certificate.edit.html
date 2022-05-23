@@ -1,0 +1,120 @@
+<div layout="column" layout-padding>
+    <form name="certificateEditForm">
+        <div layout="column">
+            <md-input-container>
+                <label>{{'certificate.type' | translate}}</label>
+                <hois-classifier-select ng-model="record.type" model-value-attr="code" main-classifier-code="TOEND_LIIK" required
+                  ng-change="changedType()" ng-disabled="record.id" filter-values="forbiddenTypes" only-valid ignore-preselected
+                  criteria="{higher: auth.school.higher ? true : undefined, vocational: auth.school.vocational ? true : undefined}"></hois-classifier-select>
+            </md-input-container>
+            <md-input-container ng-if="record.id && auth.school.withoutEkis">
+                <label>{{'certificate.nr' | translate}}{{ certificateEditForm.certificateNr.$error.required ? ' *' : ''}}</label>
+                <input type="text" ng-model="record.certificateNr" md-maxlength="20" name="certificateNr" ng-change="changedCertificateNr()"/>
+            </md-input-container>
+
+            <div ng-if="!isOtherCertificate()">
+                <md-autocomplete
+                    md-input-minlength="1"
+                    name="student"
+                    md-selected-item="formState.student"
+                    md-search-text="queryText"
+                    md-items="item in querySearch(queryText)"
+                    md-item-text="currentLanguageNameField(item)"
+                    md-floating-label="{{'certificate.student' | translate}}"
+                    ng-model="formState.student"
+                    md-no-cache
+                    md-require-match
+                    class="small-margin"
+                    md-selected-item-change="studentChanged()"
+                    ng-required="!isOtherCertificate()"
+                    ng-disabled="record.id"
+                    >
+
+                    <md-item-template>
+                        <span md-highlight-text="queryText" md-highlight-flags="^i">{{currentLanguageNameField(item)}}</span>
+                    </md-item-template>
+
+                    <md-not-found>
+                        {{'main.messages.error.notFound' | translate}}
+                    </md-not-found>
+
+                </md-autocomplete>
+            </div>
+
+            <div ng-if="isOtherCertificate()">
+                <md-input-container class="md-block">
+                    <label>{{'certificate.otherIdcode' | translate}}</label>
+                    <input type="text" ng-model="record.otherIdcode" name="idcode" required ng-pattern="idcodePattern" md-maxlength="11" ng-disabled="record.id">
+                    <div ng-messages="certificateEditForm.idcode.$error" ng-show="certificateEditForm.idcode.$dirty">
+                        <div ng-message="pattern">
+                            {{'certificate.invalidIdcode' | translate}}
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>{{'certificate.otherName' | translate}}</label>
+                    <input type="text" ng-model="record.otherName" required md-maxlength="100" ng-disabled="record.id">
+                </md-input-container>
+            </div>
+            <md-input-container>
+                <label>{{'certificate.headline' | translate}}</label>
+                <textarea ng-model="record.headline" required md-maxlength="1000" max-rows="2"></textarea>
+            </md-input-container>
+            <md-input-container>
+                <label>{{'certificate.whom' | translate}}</label>
+                <input type="text" ng-model="record.whom" md-maxlength="1000" ng-disabled="record.id && !auth.school.withoutEkis">
+            </md-input-container>
+            <md-input-container>
+                <label>{{'certificate.signatory' | translate}}</label>
+                <md-select ng-model="record.signatoryIdcode"
+                           aria-label="{{'certificate.signatory' | translate}}" required>
+                  <md-option ng-value="signatory.idcode" ng-repeat="signatory in signatories">
+                    {{::signatory.name}}
+                 </md-option>
+                </md-select>
+            </md-input-container>
+            <div layout="row" ng-if="record.type === 'TOEND_LIIK_SOOR'">
+              <md-input-container ng-if="!record.id && isHigher">
+                <md-checkbox ng-model="record.showModules" ng-change="reloadContent()">{{'certificate.showModules' | translate}}</md-checkbox>
+              </md-input-container>
+                <md-input-container ng-if="!record.id" flex-offset="{{isHigher ? 5 : 0}}">
+                    <md-checkbox ng-model="record.addOutcomes" ng-change="reloadContent()">{{'certificate.addOutcomes' | translate}}</md-checkbox>
+                </md-input-container>
+                <md-input-container ng-if="!record.id && studentType === 'OPPUR_K'" flex-offset="5">
+                    <md-checkbox ng-model="record.showUncompleted" ng-change="reloadContent()">
+                        {{auth.higher ? ('certificate.showUncompletedSubjects' | translate) : ('certificate.showUncompletedJournals' | translate)}}
+                    </md-checkbox>
+                </md-input-container>
+            </div>
+            <div layout="row" ng-if="!record.id && record.type === 'TOEND_LIIK_SOOR'">
+                <md-radio-group layout-gt-sm="row" ng-model="record.estonian" ng-change="reloadContent()">
+                    <md-radio-button ng-value="true" aria-label="estonian">
+                        {{'document.estonian' | translate}}
+                    </md-radio-button>
+                    <md-radio-button ng-value="false" aria-label="english">
+                        {{'document.english' | translate}}
+                    </md-radio-button>
+                </md-radio-group>
+            </div>
+            <md-input-container ng-if="contentEditable()">
+                <label>{{'certificate.content' | translate}}</label>
+                <textarea ng-model="record.content" required md-maxlength="2000" max-rows="2"></textarea>
+            </md-input-container>
+            <div>&nbsp;</div>
+            <div ng-if="!contentEditable()">
+                <label class="common-label" ng-show="record.content">{{'certificate.content' | translate}}</label>
+                <md-table-container>
+                    <div id="content" class="md-body-1"></div>
+                </md-table-container>
+            </div>
+        </div>
+        <div layout="row">
+            <md-button class="md-raised md-primary" ng-if="!record.id || record.canBeChanged" ng-click="save()">{{'main.button.save' | translate}}</md-button>
+            <md-button class="md-raised md-default" ng-if="(!record.id || record.canBeChanged) && !auth.school.withoutEkis" ng-click="saveAndOrder()">{{'certificate.saveAndOrder' | translate}}</md-button>
+            <md-button class="md-raised md-default" ng-if="record.id && record.canBeChanged && auth.school.withoutEkis && auth.isAdmin()" ng-click="complete()">{{'main.button.complete' | translate}}</md-button>
+            <md-button class="md-raised md-default" ng-if="record.id && auth.isAdmin()" ng-href="{{printUrl()}}" target="_blank">{{'main.button.print' | translate}}</md-button>
+            <md-button class="md-raised md-default" ng-click="delete()" ng-if="record.id && record.canBeChanged">{{'main.button.delete' | translate}}</md-button>
+            <md-button class="md-raised md-default" ng-click="back('#/certificate', certificateEditForm)">{{'main.button.back' | translate}}</md-button>
+        </div>
+    </form>
+</div>

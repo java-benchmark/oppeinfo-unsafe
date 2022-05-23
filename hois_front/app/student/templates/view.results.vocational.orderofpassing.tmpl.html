@@ -1,0 +1,43 @@
+<div ng-if="vocationalResultsPassing && vocationalResultsPassing.length!=0">
+  <md-table-container>
+  <table md-table class="secondary-table">
+    <thead md-head>
+      <tr md-row>
+        <th md-column>{{'student.result.name' | translate}}</th>
+        <th md-column></th>
+        <th md-column>{{'student.result.grade' | translate}}</th>
+        <th md-column>{{'student.result.date' | translate}}</th>
+        <th md-column>{{auth.higher ? ('student.result.teacherHigher' | translate) : ('student.result.teacherVocational' | translate)}}</th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row ng-repeat="row in vocationalResultsPassing | orderBy: '-date'" ng-class-odd="'odd'" ng-class-even="'even'">
+        <td md-cell>
+          <span ng-if="row.isApel" class="apelAsterisk">*</span>
+          <span ng-class="row.isModule ? 'md-body-2 bold' : ''">
+            <span ng-if="row.isModule">M: </span>
+            <span>{{currentLanguageNameField(row.name)}}</span>
+          </span>
+          <span ng-if="row.isInformal"> - {{'student.result.informal' | translate}}</span>
+        </td>
+        <td md-cell>
+          <span ng-if="row.entryType">{{currentLanguageNameField(row.entryType)}}</span>
+          <span ng-if="row.isPractice">{{'student.result.practice' | translate}}</span>
+        </td>
+        <td md-cell>
+          <span ng-if="!row.entryType" ng-class="row.isModule ? 'md-body-2 bold' : ''">
+            <span ng-class="{badResult: !gradeUtil.isPositive(row.grade.code)}">{{row.grade | hoisVocationalGrade}}</span>
+          </span>
+          <hois-journal-result ng-if="row.entryType" value="row"></hois-journal-result>
+        </td>
+        <td md-cell>{{row.date | hoisDate}}</td>
+        <td md-cell>{{row.teachers}}</td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>
+</div>
+
+<div ng-if="vocationalResultsPassing && vocationalResultsPassing.length==0">
+  <span>{{'student.result.missing' | translate}}</span>
+</div>

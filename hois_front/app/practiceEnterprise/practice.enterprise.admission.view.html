@@ -1,0 +1,37 @@
+<div ng-include="'practiceEnterprise/practice.enterprise.navbar.html'"></div>
+
+<div layout-padding>
+    <div flex>
+        <md-table-container>
+            <table md-table md-progress="tabledata.$promise" class="secondary-table">
+                <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+                <tr md-row>
+                    <th md-column md-order-by="pa.valid_from, pa.valid_thru">{{'enterprise.admissionTab.period' | translate}}</th>
+                    <th md-column>{{'enterprise.admissionTab.studentGroups' | translate}}</th>
+                    <th md-column>{{'enterprise.admissionTab.places' | translate}}</th>
+                    <th md-column>{{'enterprise.admissionTab.addInfo' | translate}}</th>
+                </tr>
+                </thead>
+                <tbody md-body>
+                <tr md-row ng-repeat="row in tabledata.content track by $index" ng-class-odd="'odd'" ng-class-even="'even'">
+                    <td md-cell>{{row.validFrom | hoisDate}} - {{row.validThru | hoisDate}}</td>
+                    <td md-cell>{{row.studentGroups ? row.studentGroups : '-'}}</td>
+                    <td md-cell>{{row.places ? row.places : '-'}}</td>
+                    <td md-cell>{{row.addInfo ? row.addInfo : '-'}}</td>
+                    <td md-cell></td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" 
+    md-total="{{tabledata.totalElements}}"
+    md-on-paginate="loadData" 
+    md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}"
+    md-page-select>
+    </md-table-pagination>
+    </div>
+</div>
+<div ng-if="auth.isAdmin() || auth.isLeadingTeacher()" layout="row" layout-xs="column">
+    <md-button ng-if="isAuthorized('ROLE_OIGUS_M_TEEMAOIGUS_ETTEVOTE')" class="md-raised md-primary" ng-href="#/practice/enterprise/{{::enterprise.id}}/{{::enterprise.enterpriseSchoolId}}/admission/edit">{{'main.button.change' | translate}}</md-button>
+    <md-button class="md-raised" ng-click="back('#/practice/enterprise')">{{'main.button.back' | translate}}</md-button>
+</div>

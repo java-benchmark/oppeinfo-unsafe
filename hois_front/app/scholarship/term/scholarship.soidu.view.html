@@ -1,0 +1,126 @@
+<div class="ois-form-layout-padding" ng-cloak>
+  <div flex>
+    <form name="stipendForm">
+      <div class="form-readonly">
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{formState.typeIsScholarship ? 'stipend.scholarshipType' : 'stipend.grantType' | translate}}</label>
+            <hois-classifier-value ng-model="stipend.type" main-classifier-code="STIPTOETUS"></hois-classifier-value>
+          </md-input-container>
+        </div>
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{formState.typeIsScholarship ? 'stipend.scholarshipName' : 'stipend.grantName' | translate}}</label>
+            <hois-value value="stipend.nameEt"></hois-value>
+          </md-input-container>
+        </div>
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label class="textInput">{{'stipend.studyPeriod' | translate}}</label>
+            <hois-value value="formState.readonlyStudyPeriod | hoisStudyPeriod"></hois-value>
+          </md-input-container>
+        </div>
+        <div layout="row">
+          <div flex="20" flex-md="100" flex-sm="100" flex-xs="100">
+            <label class="date-period-label">{{'stipend.applicationPeriod' | translate}}</label>
+          </div>
+          <md-input-container flex="20" flex-md="100" flex-sm="100" flex-xs="100" flex-offset="5">
+            <label>{{'main.from' | translate}}</label>
+            <hois-value value="stipend.applicationStart | hoisDate"></hois-value>
+          </md-input-container>
+          <md-input-container flex="20" flex-md="100" flex-sm="100" flex-xs="100" flex-offset="5">
+            <label>{{'main.thru' | translate}}</label>
+            <hois-value value="stipend.applicationEnd | hoisDate"></hois-value>
+          </md-input-container>
+
+        </div>
+        <div layout="row">
+          <div flex="20" flex-md="100" flex-sm="100" flex-xs="100">
+            <label class="date-period-label">{{'stipend.paymentPeriod' | translate}}</label>
+          </div>
+          <md-input-container flex="20" flex-md="100" flex-sm="100" flex-xs="100" flex-offset="5">
+            <label>{{'main.from' | translate}}</label>
+            <hois-value value="stipend.paymentStart | hoisDate"></hois-value>
+          </md-input-container>
+          <md-input-container flex="20" flex-md="100" flex-sm="100" flex-xs="100" flex-offset="5">
+            <label>{{'main.thru' | translate}}</label>
+            <hois-value value="stipend.paymentEnd | hoisDate"></hois-value>
+          </md-input-container>
+        </div>
+        <div layout="row" flex>
+          <md-input-container flex>
+            <label>{{'stipend.amountPaid' | translate}}</label>
+            <hois-value value="stipend.amountPaid"></hois-value>
+          </md-input-container>
+        </div>
+        <div>
+          <fieldset>
+            <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'stipend.curriculums' | translate}}</legend>
+            <md-table-container>
+              <table md-table class="secondary-table">
+                <tbody md-body>
+                  <tr md-row ng-repeat="curriculum in stipend.curriculums | orderBy: ['curriculum.' + currentLanguageNameField(), 'code']" ng-class-odd="'odd'" ng-class-even="'even'">
+                    <td md-cell>{{currentLanguageNameField(curriculum)}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </md-table-container>
+          </fieldset>
+
+          <div>&nbsp;</div>
+
+          <div layout="row" flex>
+            <md-input-container flex="45">
+              <label class="textInput">{{'stipend.studyForm' | translate}}</label>
+              <hois-classifier-value ng-model="stipend.studyForms" main-classifier-code="OPPEVORM" multiple></hois-classifier-value>
+            </md-input-container>
+            <md-input-container flex="50" flex-offset="5">
+              <label class="textInput">{{'stipend.courses' | translate}}</label>
+              <hois-classifier-value ng-model="stipend.courses" main-classifier-code="KURSUS" multiple></hois-classifier-value>
+            </md-input-container>
+          </div>
+
+          <div layout="row" flex>
+            <md-input-container flex="100">
+              <label class="textInput">{{'stipend.addInfoForStudent' | translate}}</label>
+              <hois-value value="stipend.addInfo"></hois-value>
+            </md-input-container>
+          </div>
+          <div layout="row">
+            <div flex="20" flex-md="100" flex-sm="100" flex-xs="100">
+              <label class="date-period-label">{{'stipend.studyPeriodDates' | translate}}</label>
+            </div>
+            <md-input-container flex="20" flex-md="100" flex-sm="100" flex-xs="100" flex-offset="5">
+              <label>{{'main.from' | translate}}</label>
+              <hois-value value="stipend.studyStartPeriodStart | hoisDate"></hois-value>
+            </md-input-container>
+            <md-input-container flex="20" flex-md="100" flex-sm="100" flex-xs="100" flex-offset="5">
+              <label>{{'main.thru' | translate}}</label>
+              <hois-value value="stipend.studyStartPeriodEnd | hoisDate"></hois-value>
+            </md-input-container>
+          </div>
+          <div layout="row">
+            <md-checkbox ng-model="stipend.isTeacherConfirm" disabled aria-label="Is academic leave">
+              {{'stipend.isTeacherConfirm' | translate}}
+            </md-checkbox>
+          </div>
+          
+          <div layout="row" flex>
+            <md-input-container flex="45">
+              <label>{{'stipend.committee' | translate}}</label>
+              <hois-value value="currentLanguageNameField(formState.committee)"></hois-value>
+            </md-input-container>
+          </div>
+  
+          <div layout="row">
+            <div layout="row">
+              <md-button class="md-raised md-primary" ng-if="canEdit" ng-click="changeStipend(stipend)">{{'main.button.edit' | translate}}</md-button>
+              <md-button class="md-raised" ng-if="!stipend.isOpen && stipend.id && canEdit" ng-click="publish()">{{'main.button.publishtoStudents' | translate}}</md-button>
+              <md-button class="md-raised" ng-click="back('#/scholarships/', stipendForm)">{{'main.button.back' | translate}}</md-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

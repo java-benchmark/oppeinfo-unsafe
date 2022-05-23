@@ -1,0 +1,87 @@
+<div layout-padding>
+  <div flex>
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'main.searchlabel' | translate}}</legend>
+      <form ng-submit="loadData()" layout="column" name="logForm" ng-model-options="{allowInvalid: true}">
+        <div flex>
+          <div layout-gt-sm="row" layout="column" layout-align-gt-sm="start end" layout-align="start stretch">
+            <md-input-container ng-if="logType !== 'rr'" flex="45" flex-sm="100" flex-xs="100" style="margin-bottom: 4px;">
+              <label>{{'logs.name' | translate}}</label>
+              <md-select ng-model="criteria.messageType">
+                <md-option md-option-empty></md-option>
+                <md-option ng-repeat="val in messageTypes" ng-value="val">
+                  {{messagePrefix + val | translate}}
+                </md-option>
+              </md-select>
+            </md-input-container>
+            <md-input-container ng-if="logType === 'rr'" flex="45" flex-sm="100" flex-xs="100" style="margin-bottom: 4px;">
+              <label>{{'logs.idcode' | translate}}</label>
+              <input ng-model="criteria.idcode" name="idcode" pattern="^\d+$" md-maxlength="11" autofocus>
+            </md-input-container>
+
+            <div flex-gt-sm="50" flex="100" flex-offset="0" flex-offset-gt-sm="5">
+              <label class="common-label">{{'logs.sentDatesRange' | translate}}</label>
+              <div layout="row">
+                <md-input-container>
+                  <label>{{'main.from' | translate}}</label>
+                  <md-datepicker ng-model="criteria.from" md-max-date="criteria.thru" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                </md-input-container>
+                <md-input-container>
+                  <label>{{'main.thru' | translate}}</label>
+                  <md-datepicker ng-model="criteria.thru" md-min-date="criteria.from" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                </md-input-container>
+              </div>
+            </div>
+          </div>
+
+          <div layout="row">
+            <md-input-container flex="45">
+              <md-checkbox ng-model="criteria.errors" aria-label="show only errors">
+                {{'logs.onlyErrors' | translate}}
+              </md-checkbox>
+            </md-input-container>
+          </div>
+        </div>
+
+        <div layout="row">
+          <md-button type="submit" class="md-raised md-primary">{{'main.button.search' | translate}}</md-button>
+          <md-button class="md-raised" ng-click="clearCriteria()">{{'main.button.clear' | translate}}</md-button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+</div>
+
+<div layout-padding>
+  <div flex>
+    <md-table-container>
+      <table md-table md-progress="tabledata.$promise">
+        <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+          <tr md-row>
+            <th md-column>{{'logs.name' | translate}}</th>
+            <th md-column md-order-by="inserted">{{'logs.time' | translate}}</th>
+            <th md-column ng-if="logType === 'ekis'">{{'logs.directive' | translate}}</th>
+            <th md-column>{{'logs.error' | translate}}</th>
+            <th md-column>{{'logs.message' | translate}}</th>
+            <th md-column>{{'logs.insertedBy' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell>
+              <a md-no-ink class="md-primary" ng-click="logentry(row)">{{::(messagePrefix + row.wsName) | translate}}</a>
+            </td>
+            <td md-cell>{{::row.inserted | hoisDateTime}}</td>
+            <td md-cell ng-if="logType === 'ekis'">{{currentLanguageNameField(row.directive)}}</td>
+            <td md-cell>{{row.error ? 'main.yes' : 'main.no' | translate}}</td>
+            <td md-cell>{{::row.logTxt}}</td>
+            <td md-cell>{{::row.insertedBy}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]"
+                         md-page="criteria.page" md-total="{{tabledata.totalElements}}" md-on-paginate="loadData"
+                         md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}' }" md-page-select></md-table-pagination>
+  </div>
+</div>

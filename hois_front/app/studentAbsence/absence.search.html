@@ -1,0 +1,129 @@
+<div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+
+  <div layout="column">
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'main.searchlabel' | translate}}</legend>
+      <form name="absencesSearchForm" ng-submit="loadData()" novalidate class="nomargin">
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'absence.studyYear' | translate}}</label>
+            <hois-select ng-model="criteria.studyYear" ng-change="studyYearChanged()" values="studyYears" sorted-query="true" required></hois-select>
+          </md-input-container>
+          <md-input-container flex flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <label>{{'absence.studyPeriod' | translate}}</label>
+            <md-select ng-model="criteria.studyPeriod">
+              <md-option ng-value="null"></md-option>
+              <md-option ng-repeat="studyPeriod in studyPeriods | filter: filterByStudyYear(criteria.studyYear)" ng-value="studyPeriod.id">
+                {{ currentLanguageNameField(studyPeriod) }}
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'absence.curriculumVersion' | translate}}</label>
+            <hois-select ng-model="criteria.curriculumVersions" type="curriculumversion"
+              criteria="{userId: auth.isLeadingTeacher() ? auth.user : null}" multiple></hois-select>
+          </md-input-container>
+          <hois-autocomplete flex flex-offset="5" flex-offset-xs="0" flex-offset-sm="0"
+            ng-model="criteria.studentGroupId" ha-attribute="id" ha-controller="directiveControllers" method="studentgroups" name="studentGroup"
+            additional-query-params="{userId: auth.isLeadingTeacher() ? auth.user : null}" label="{{'absence.studentGroup'}}"></hois-autocomplete>
+        </div>
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'absence.student' | translate}}</label>
+            <input ng-model="criteria.studentName" type="text" md-maxlength="255">
+          </md-input-container>
+          <md-input-container flex flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <label>{{'absence.status' | translate}}</label>
+            <md-select ng-model="criteria.status" ng-change="statusChanged()">
+              <md-option ng-value="null"></md-option>
+              <md-option ng-value="'accepted'">{{ 'absence.isAccepted' | translate }}</md-option>
+              <md-option ng-value="'isNotAccepted'">{{ 'absence.isNotAccepted' | translate }}</md-option>
+              <md-option ng-value="'rejected'">{{ 'absence.isRejected' | translate }}</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="row" layout-xs="column">
+          <md-button type="submit" class="md-raised md-primary">{{'main.button.search' | translate}}</md-button>
+          <md-button class="md-raised" ng-click="clearCriteria()">{{'main.button.clear' | translate}}</md-button>
+        </div>
+      </form>
+    </fieldset>
+
+    <md-table-container ng-cloak layout-padding>
+      <table md-table md-progress="tabledata.$promise">
+        <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+          <tr md-row>
+            <th md-column md-order-by="p.lastname,p.firstname">{{'absence.student' | translate}}</th>
+            <th md-column md-order-by="sg.code">{{'absence.studentGroup' | translate}}</th>
+            <th md-column md-order-by="sa.valid_from">{{'absence.absenceFrom' | translate}}</th>
+            <th md-column md-order-by="sa.valid_thru">{{'absence.absenceThru' | translate}}</th>
+            <th md-column md-order-by="sa.cause">{{'absence.absenceCause' | translate}}</th>
+            <th md-column md-order-by="sa.inserted_by">{{'absence.applicant' | translate}}</th>
+            <th md-column md-order-by="sa.is_accepted, sa.is_rejected">{{'absence.status' | translate}}</th>
+            <th md-column>{{'absence.absenceAcceptor' | translate}}</th>
+            <th md-column></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell class="one-row">
+              <a ng-href="#/students/{{row.student.id}}/main">{{currentLanguageNameField(row.student)}}</a>
+            </td>
+            <td md-cell>{{::row.studentGroup}}</td>
+            <td md-cell>{{row.validFrom | hoisDate}}</td>
+            <td md-cell>{{row.validThru | hoisDate}}</td>
+            <td md-cell>{{::row.cause}}</td>
+            <td md-cell>{{::row.applicant}}</td>
+            <td md-cell>
+              <span ng-if="row.isAccepted">{{'absence.isAccepted' | translate}}</span>
+              <span ng-if="row.isRejected">
+                {{'absence.isRejected' | translate}} 
+                <span ng-if="row.rejectReason">
+                  <md-tooltip md-direction="bottom"><p>{{row.rejectReason}}</p></md-tooltip>
+                  <md-icon md-font-set="material-icons" ng-if="row.rejectReason">message</md-icon>
+                </span>
+              </span>
+              <span ng-if="!row.isAccepted && !row.isRejected">{{'absence.isNotAccepted' | translate}}</span>
+            </td>
+            <td md-cell>{{row.acceptor}}</td>
+            <td md-cell>
+              <md-button ng-if="row.canAccept" md-no-ink class="md-primary change-button" ng-click="accept(row)">{{'absence.accept' | translate}}</md-button>
+              <md-button ng-if="row.canAccept" md-no-ink class="md-primary change-button" ng-click="acceptByLessons(row)">{{'absence.acceptByLessons' | translate}}</md-button>
+              <md-button ng-if="row.isAccepted && row.isLessonAbsence" md-no-ink class="md-primary change-button" ng-click="viewAcceptedLessons(row)">{{'absence.viewAcceptedLessons' | translate}}</md-button>
+              <md-button ng-if="row.canReject" md-no-ink class="md-primary change-button" ng-click="openRejectDialog(row)">{{'absence.reject' | translate}}</md-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" md-total="{{tabledata.totalElements}}"
+      md-on-paginate="loadData" md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}' }"
+      md-page-select></md-table-pagination>
+  </div>
+</div>
+
+<style>
+  md-tooltip {
+    height: auto !important;
+  }
+
+  md-tooltip p {
+    white-space: normal;
+  }
+
+  @media only screen and (max-width: 649px) {
+    md-tooltip p {
+      max-width: 90vw;
+    }
+  }
+
+  @media only screen and (min-width: 650px) {
+    md-tooltip p {
+      /* Give at least 10 px free space */
+      max-width: 640px;
+    }
+  }
+</style>

@@ -1,0 +1,64 @@
+<md-table-container flex="100">
+  <table md-table class="secondary-table">
+    <thead md-head>
+      <tr md-row class="apel-record-header">
+        <th md-column ng-if="!formState.viewForm && application.canEdit">
+          <a ng-click="editInformalLearning(record.id)">{{'main.button.change' | translate}}</a>
+        </th>
+        <th md-column colspan="{{informalLearningColspan}}" style="text-align: center">{{'apel.informalLearnings.substitutableModulesThemes' | translate}}</th>
+        <th md-column style="border-left: 1px rgba(0, 0, 0, 0.12) solid;"></th>
+        <th md-column colspan="5" style="text-align: center">{{'apel.informalLearnings.vocationalOtherInformalLearnings' | translate}}</th>
+      </tr>
+      <tr md-row>
+        <th md-column ng-if="application.status !== 'VOTA_STAATUS_K'">{{'apel.informalLearnings.transfer' | translate}}</th>
+        <th md-column class="apel-min-width">{{'apel.informalLearnings.module' | translate}}/{{'apel.informalLearnings.theme' | translate}}</th>
+        <th md-column>{{'apel.informalLearnings.isModule' | translate}}</th>
+        <th md-column>{{'apel.informalLearnings.hours' | translate}}/{{'apel.informalLearnings.ekap' | translate}}</th>
+        <th md-column>{{'apel.informalLearnings.result' | translate}}</th>
+        <th md-column class="apel-min-width">{{'apel.informalLearnings.outcomes' | translate}}</th>
+        <th md-column class="apel-min-width">{{'apel.informalLearnings.acquiredSkills' | translate}}</th>
+        <th md-column style="border-left: 1px rgba(0, 0, 0, 0.12) solid;"></th>
+        <th md-column class="apel-min-width">{{'apel.informalLearnings.name' | translate}}</th>
+        <th md-column class="apel-min-width">{{'apel.informalLearnings.placeTime' | translate}}</th>
+        <th md-column>{{'apel.informalLearnings.hours' | translate}}</th>
+        <th md-column>{{'apel.informalLearnings.documents' | translate}}</th>
+        <th md-column>{{'apel.informalLearnings.type' | translate}}</th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row ng-repeat="row in record.data | orderBy:'moduleId'" ng-class-odd="'odd'" ng-class-even="'even'">
+        <td md-cell ng-if="application.status !== 'VOTA_STAATUS_K'">
+          <md-checkbox ng-if="(row.transfer === false || row.transfer === true) && canChangeTransferStatus"
+            ng-model="row.transfer" ng-click="changeInformalTransferStatus(row)" aria-label="{{'apel.informalLearnings.transfer' | translate}}"></md-checkbox>
+          <md-checkbox ng-if="(row.transfer === false || row.transfer === true) && !canChangeTransferStatus"
+            ng-model="row.transfer" ng-click="changeInformalTransferStatus(row)" aria-label="{{'apel.informalLearnings.transfer' | translate}}" ng-disabled="true"></md-checkbox>
+        </td>
+        <td md-cell>
+          <span ng-if="row.module && row.isModule">{{currentLanguageNameField(row.module)}}</span>
+          <span ng-if="row.module && !row.isModule">{{currentLanguageNameField(row.module)}}/{{currentLanguageNameField(row.theme)}}</span>
+        </td>
+        <td md-cell>
+          <md-checkbox ng-if="row.isModule === true || row.isModule === false" ng-model="row.isModule"
+            aria-label="{{'apel.informalLearnings.isModule' | translate}}" ng-disabled="true"></md-checkbox>
+        </td>
+        <td ng-if="row.ekap" md-cell>{{row.schoolResultHours}}/{{row.ekap}}</td>
+        <td ng-if="!row.ekap" md-cell>{{row.schoolResultHours}}</td>
+        <td md-cell>{{row.grade.value}}</td>
+        <td md-cell>
+          <ul ng-repeat="outcome in row.outcomes | orderBy: ['curriculumModuleOutcomes.orderNr', 'curriculumModuleOutcomes.' + currentLanguage() === 'en' ? outcomeEn : outcomeEt]" style="padding-left: 15px">
+            <li>{{currentLanguage() === 'en' ? outcome.curriculumModuleOutcomes.outcomeEn : outcome.curriculumModuleOutcomes.outcomeEt}}</li>
+          </ul>
+        </td>
+        <td md-cell>{{row.skills}}</td>
+        <td md-cell style="border-left: 1px rgba(0, 0, 0, 0.12) solid;"></td>
+        <td md-cell>{{row.nameEt}}</td>
+        <td md-cell>{{row.placeTime}}</td>
+        <td md-cell>{{row.hours}}</td>
+        <td md-cell>{{row.documents}}</td>
+        <td md-cell>
+          <hois-classifier-value ng-model="row.type" main-classifier-code="VOTA_INFORMAAL_LIIK"></hois-classifier-value>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>

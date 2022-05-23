@@ -1,0 +1,133 @@
+<div layout-padding ng-cloak>
+  <div flex>
+
+    <div layout="row" layout-xs="column" flex class="form-readonly">
+      <div flex="70">
+        <div layout="row" layout-sm="column" layout-xs="column" ng-if="record.type === 'KASKKIRI_TYHIST'">
+          <md-input-container flex="100" flex-sm="100" flex-xs="100">
+            <label class="textInput">{{'directive.canceledDirective' | translate}}</label>
+            <hois-value value="record.canceledDirective.nameEt" href-value="'#/directives/' + record.canceledDirective.id + '/view'"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'directive.headline' | translate}}</label>
+            <hois-value value="record.headline"></hois-value>
+          </md-input-container>
+          <md-input-container flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <label>{{'directive.directiveNr' | translate}}</label>
+            <hois-value value="record.directiveNr"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'directive.type' | translate}}</label>
+            <hois-classifier-value ng-model="record.type" main-classifier-code="KASKKIRI"></hois-classifier-value>
+          </md-input-container>
+          <md-input-container flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <label>{{'directive.preamble' | translate}}</label>
+            <hois-value value="record.preamble"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column" ng-if="record.type === 'KASKKIRI_STIPTOET' || record.type === 'KASKKIRI_STIPTOETL'">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'directive.scholarshipType' | translate}}</label>
+            <hois-value value="currentLanguageNameField(record.scholarshipTypeObject)"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'directive.inserted' | translate}}</label>
+            <hois-value value="record.inserted | hoisDate"></hois-value>
+          </md-input-container>
+          <md-input-container flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <label>{{'directive.confirmDate' | translate}}</label>
+            <hois-value value="record.confirmDate | hoisDate"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'directive.addInfo' | translate}}</label>
+            <hois-value value="record.addInfo"></hois-value>
+          </md-input-container>
+          <md-input-container flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <label>{{'directive.directiveCoordinator' | translate}}</label>
+            <hois-value value="record.directiveCoordinator.nameEt"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'directive.status' | translate}}</label>
+            <hois-classifier-value ng-model="record.status" main-classifier-code="KASKKIRI_STAATUS"></hois-classifier-value>
+          </md-input-container>
+        </div>
+      </div>
+    </div>
+
+    <div class="ois-form-layout" ng-show="userCanConfirm()">
+      <form name="directiveForm">
+        <div layout="column">
+          <md-input-container class="md-block">
+            <label>{{'directive.directiveNr' | translate}}</label>
+            <input type="text" ng-model="confirmRecord.directiveNr" name="directiveNr" required md-maxlength="20">
+          </md-input-container>
+          <md-input-container class="md-block">
+            <label>{{'directive.preamble' | translate}}</label>
+            <textarea ng-model="confirmRecord.preamble" md-maxlength="4000" max-rows="10" required></textarea>
+          </md-input-container>
+        </div>
+      </form>
+    </div>    
+
+    <md-table-container>
+      <fieldset>
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'directive.studentList' | translate}}</legend>
+        <div ng-include="formState.templateUrl" flex></div>
+      </fieldset>
+    </md-table-container>
+
+    <div>&nbsp;</div>
+
+    <md-table-container ng-if="record.cancelingDirectives && record.cancelingDirectives.length > 0">
+      <fieldset>
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'directive.cancelingDirectives' | translate}}</legend>
+      <table md-table>
+        <thead md-head>
+          <tr md-row>
+            <th md-column>{{'directive.headline' | translate}}</th>
+            <th md-column>{{'directive.directiveNr' | translate}}</th>
+            <th md-column>{{'directive.status' | translate}}</th>
+            <th md-column>{{'directive.inserted' | translate}}</th>
+            <th md-column>{{'directive.confirmDate' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in record.cancelingDirectives" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell>
+              <a md-class="md-primary change-button" ng-href="#/directives/{{::row.id}}/view">{{::row.headline}}</a>
+            </td>
+            <td md-cell>{{::row.directiveNr}}</td>
+            <td md-cell>{{currentLanguageNameField(row.status)}}</td>
+            <td md-cell>{{::row.inserted | hoisDate}}</td>
+            <td md-cell>{{::row.confirmDate | hoisDate}}</td>
+          </tr>
+        </tbody>
+      </table>
+      </fieldset>
+    </md-table-container>
+
+    <md-button ng-if="record.id && record.userCanEdit" class="md-primary md-raised"
+      ng-href="#/directives/{{record.id}}/edit?_noback">{{'main.button.change' | translate}}</md-button>
+    <md-button ng-click="back('#/directives')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+    <md-button ng-click="confirmDirective()" ng-if="userCanConfirm()"
+      class="md-raised">{{'directive.confirmDuringTest' | translate}}</md-button>
+    <md-button ng-click="cancelDirective()" ng-if="record.userCanCancel"
+      class="md-raised">{{'directive.cancel' | translate}}</md-button>
+  </div>
+</div>

@@ -1,0 +1,119 @@
+<style>
+  /** Autocomplete responsive */
+  md-autocomplete {
+    min-width: 0;
+  }
+  /** Datepicker responsive */
+  .md-datepicker-input-mask-opaque {
+    width: 100% !important;
+  }
+  .md-datepicker-input-mask {
+    width: 100% !important;
+  }
+  .md-datepicker-input-container {
+    width: 100%;
+  }
+  .md-datepicker-input {
+    min-width: 0;
+    max-width: 100%;
+  }
+  /** xs breakpoint */
+  @media(max-width: 600px) {
+    .padding-top-4 {
+      padding-top: 4px;
+    }
+  }
+</style>
+<div ng-include="'practiceStatistics/practice.statistics.navbar.html'"></div>
+  <div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+    <div flex>
+      <fieldset ng-if="auth.isAdmin() || auth.isLeadingTeacher()">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'main.searchlabel' | translate}}</legend>
+        <form name="searchForm" ng-submit="searchForm.$valid && loadData()" novalidate>
+          <div layout="column" flex>
+            <div layout="row" flex>
+              <div layout="column" flex="50">
+                <hois-autocomplete flex ng-model="criteria.enterprise" method="enterprises" name="enterprise" label="enterprise.label"
+                  ha-attribute="id" ha-controller="directiveControllers"></hois-autocomplete>
+                <hois-autocomplete flex ng-model="criteria.student" method="students" name="student" label="apel.student"
+                  ha-attribute="id" ha-controller="directiveControllers"
+                  additional-query-params="{userId: auth.isLeadingTeacher() ? auth.user : null}">
+                </hois-autocomplete>
+                <hois-autocomplete flex ng-model="criteria.studentGroup" ha-attribute="id" ha-controller="directiveControllers"
+                  method="studentgroups" name="studentGroup" label="{{'lessonplan.studentGroup'}}"
+                  additional-query-params="{userId: auth.isLeadingTeacher() ? auth.user : null}" ></hois-autocomplete>
+              </div>
+              <div layout="column" flex="50">
+                <md-input-container layout="row" style="padding-bottom: 6px">
+                  <label class="textInput">{{'practice.contract.cancelReason' | translate}}</label>
+                  <hois-classifier-select ng-model="criteria.cancelReason" model-value-attr="code" main-classifier-code="LEPING_TYH_POHJUS"></hois-classifier-select>
+                </md-input-container>
+                <div layout="row" layout-xs="column">
+                  <div flex="50" flex-xs="100">
+                    <md-input-container flex class="padding-top-4" style="width: 100%">
+                        <label style="width: 90%;text-overflow: ellipsis;overflow: hidden !important; width:100% important">{{'practice.contract.startDate' | translate}}</label>
+                        <md-datepicker name="date" ng-model="criteria.startDate" md-max-date="criteria.endDate" md-open-on-focus hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                    </md-input-container>
+                  </div>
+                  <div flex="50" flex-xs="100">
+                    <md-input-container flex style="width: 100%">
+                        <label style="width: 90%;text-overflow: ellipsis;overflow: hidden !important; width:100% important">{{'practice.contract.endDate' | translate}}</label>
+                        <md-datepicker name="date" ng-model="criteria.endDate" md-min-date="criteria.startDate" md-open-on-focus hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                    </md-input-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div layout="row" layout-xs="column">
+              <md-button type="submit" class="md-raised md-primary">{{'main.button.search' | translate}}</md-button>
+              <md-button class="md-raised" ng-click="clearCriteria()">{{'main.button.clear' | translate}}</md-button>
+              <a ng-href="{{excel(formState.xlsUrl, criteria)}}" target="_blank" class="md-button md-raised">{{'document.button.excel' | translate}}</a>
+            </div>
+
+          </div>
+          <div flex-xs="0" flex-gt-xs="0" flex-gt-sm="50"></div>
+        </form>
+      </fieldset>
+    </div>
+  </div>
+  <div layout-padding>
+    <div flex>
+      <md-table-container>
+        <table md-table md-progress="tabledata.$promise">
+          <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+            <tr md-row>
+              <th md-column md-order-by="p.firstname, p.lastname">{{'practice.student.label' | translate}}</th>
+              <th md-column>{{'practice.student.studentGroup' | translate}}</th>
+              <th md-column>{{'practice.student.contractNr' | translate}}</th>
+              <th md-column>{{'practice.student.contractDate' | translate}}</th>
+              <th md-column>{{'practice.student.enterprise' | translate}}</th>
+              <th md-column>{{'practice.contract.date' | translate}}</th>
+              <th md-column>{{'practice.contract.cancelReason' | translate}}</th>
+              <th md-column>{{'practice.contract.info' | translate}}</th>
+              <th md-column ng-if="canView"></th>
+            </tr>
+          </thead>
+          <tbody md-body>
+            <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+              <td md-cell>{{row.student ? row.student : '-'}}</td>
+              <td md-cell>{{row.studentGroup ? row.studentGroup : '-'}}</td>
+              <td md-cell ng-if="!row.contractNr">{{'-'}}</td>
+              <td md-cell ng-if="row.contractNr"><a ng-href="#/contracts/{{::row.id}}/view">{{row.contractNr}}</a></td>
+              <td md-cell>{{row.startDate | hoisDate}} - {{row.endDate | hoisDate}}</td>
+              <td md-cell>{{row.enterprise ? row.enterprise : '-'}}</td>
+              <td md-cell>{{row.cancelDate ? (row.cancelDate | hoisDate) : '-'}}</td>
+              <td md-cell>{{row.cancelCode ? currentLanguageNameField(row.cancelCode) : '-'}}</td>
+              <td md-cell>{{row.cancelReason ? row.cancelReason : '-'}}</td>
+              <td md-cell ng-if="canView">
+                <md-button md-no-ink class="md-primary change-button" ng-href="#/contracts/{{::row.id}}/view">{{'main.button.view' | translate}}</md-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </md-table-container>
+      <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" md-total="{{tabledata.totalElements}}"
+        md-on-paginate="loadData" md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}"
+        md-page-select></md-table-pagination>
+    </div>
+  </div>

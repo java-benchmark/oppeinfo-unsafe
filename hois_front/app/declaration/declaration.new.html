@@ -1,0 +1,21 @@
+<form layout="column" class="ois-form-layout-padding form-readonly" name="declarationNewForm" novalidate>
+  <md-input-container flex="45" flex-sm="100" flex-xs="100" ng-if="!nextPeriod.id">
+    <label>{{'declaration.studyPeriod' | translate}}</label>
+    <hois-value value="currentLanguageNameField(studyPeriod)"></hois-value>
+  </md-input-container>
+  <md-input-container flex="45" flex-sm="100" flex-xs="100" ng-if="!!nextPeriod.id">
+    <label>{{'declaration.studyPeriod' | translate}}</label>
+    <md-select ng-model="controller.period" required ng-change="controller.student = undefined">
+      <md-option ng-value="val.id" ng-repeat="val in periods">{{currentLanguageNameField(val)}}</md-option>
+    </md-select>
+  </md-input-container>
+  <div>&nbsp;</div>
+  <hois-autocomplete ng-model="controller.student" url="/declarations/students" name="student"
+      label="declaration.student" additional-query-params="{nextPeriod: nextPeriod.id === controller.period}" required>
+  </hois-autocomplete>
+
+  <div layout="row">
+    <md-button class="md-raised md-primary" type="submit" ng-click="save()">{{'main.button.add' | translate}}</md-button>
+    <md-button class="md-raised md-default" ng-click="back('#/declarations')">{{'main.button.back' | translate}}</md-button>
+  </div>
+</form>

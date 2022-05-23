@@ -1,0 +1,69 @@
+<div ng-if="isForbidden" layout-margin>
+  <hois-whiteframe-warning md-color="'accent'">
+    <span>{{'main.messages.error.onlyForLoggedInUsers' | translate}}</span>
+  </hois-whiteframe-warning>
+
+  <md-button ng-click="back('#/academicCalendars/')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+</div>
+<div layout-padding ng-if="!isForbidden">
+    <div flex ng-if="data.events.length > 0">
+        <h2 class="md-title">
+            <span ng-if="schoolId">{{currentLanguageNameField(data.school)}}</span>
+            <hois-classifier-value ng-model="data.yearCode" main-classifier-code="OPPEAASTA"></hois-classifier-value>
+            {{'academicCalendar.studyYear' | translate}}
+        </h2>
+        <div layout="row" flex>
+            <label class="textInput">{{'academicCalendar.studyYearSelect' | translate}}</label>
+            <div class="md-body-1 hois-value" style="padding-left: 10px;">
+            <span ng-repeat="sy in formState.studyYears | orderBy: 'startDate'">
+                <a ng-click="changeStudyYear(sy)" ng-style="{'font-weight': formState.studyYear.id === sy.id ? 'bold' : 'normal'}">{{currentLanguageNameField(sy)}}</a>
+                <span>&nbsp;</span>
+            </span>
+            </div>
+        </div>
+        <md-table-container>
+            <table md-table md-progress="endpoint.$promise">
+                <thead md-head>
+                    <tr md-row>
+                        <th md-column width="20%">{{'academicCalendar.date' | translate}}</th>
+                        <th md-column width="20%">{{'academicCalendar.description' | translate}}</th>
+                        <th md-column width="60%">{{'academicCalendar.type' | translate}}</th>
+                    </tr>
+                </thead>
+                <tbody md-body>
+                    <tr md-row ng-repeat="row in data.events" ng-class-odd="'odd'" ng-class-even="'even'">
+                        <td md-cell ng-if="!row.endDate">{{row.startDate | hoisTimestamp}}</td>
+                        <td md-cell ng-if="row.endDate">{{row.startDate | hoisTimestamp}} - {{row.endDate | hoisTimestamp}}</td>
+                        <td md-cell>
+                            <span ng-if="!row.eventType">{{currentLanguageNameField(row)}}</span>
+                            <span ng-if="row.eventType">
+                                <span ng-if="row.eventType == 1">
+                                    {{currentLanguageNameField(row)}} ({{'academicCalendar.beginning' | translate}})
+                                </span>
+                                <span ng-if="row.eventType == 2">
+                                    {{currentLanguageNameField(row)}} ({{'academicCalendar.end' | translate}})
+                                </span>
+                            </span>
+                        </td>
+                        <td md-cell>
+                            <hois-classifier-value ng-if="!row.eventType" ng-model="row.eventTypeCode" main-classifier-code="SYNDMUS"></hois-classifier-value>
+                            <span ng-if="row.eventType">{{'academicCalendar.studyPeriod' | translate}}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+    </div>
+    <div flex ng-if="!data.events || data.events.length == 0">
+        <md-whiteframe class="md-whiteframe-1dp attention-whiteframe" flex="100" layout layout-align="left center">
+            <div md-colors="{color: 'warn'}">
+                <md-icon md-colors="{color: 'warn'}" md-font-set="material-icons">info_outline</md-icon>
+                <span>{{'academicCalendar.notFound' | translate}}</span>
+            </div>
+        </md-whiteframe>
+    </div>
+
+    <div ng-if="directRoute" layout="row">
+        <md-button ng-click="back('#/academicCalendars/')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+    </div>
+</div>

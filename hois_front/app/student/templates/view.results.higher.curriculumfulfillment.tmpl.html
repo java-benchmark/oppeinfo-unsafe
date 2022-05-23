@@ -1,0 +1,283 @@
+<md-checkbox ng-model="formState.openAllCollapsables" ng-change="changeModulesExpandedStatus()" name="openAll">
+  {{'student.result.openAll' | translate}}
+</md-checkbox>
+
+<hois-collapsable ng-repeat="module in higherResults.modules" expanded="module.collapsableOpen">
+  <!-- if there is no extra curriculum subjects module(KORGMOODUL_V) then module.id is set to -1 -->
+  <hois-collapsable-header ng-if="module.id > -1">
+    <div layout="column" layout-gt-md="row" class="curriculum-fulfillment-result">
+      <div flex-gt-md="50">
+        <span ng-if="module.isGrade">
+          <md-icon md-font-set="material-icons">forward_5</md-icon>
+          <md-tooltip>{{'student.result.higher.moduleIsGraded' | translate}}</md-tooltip>
+        </span>
+        <span>{{currentLanguageNameField(module)}} {{module.totalCredits}} EAP</span>
+        <span ng-if="module.type !== 'KORGMOODUL_M'">(<hois-classifier-value class="inline" ng-model="module.type" main-classifier-code="KORGMOODUL"></hois-classifier-value>)</span>
+        <span ng-if="module.type === 'KORGMOODUL_M'">({{currentLanguage()=='et' ? module.typeNameEt : module.typeNameEn}})</span>
+      </div>
+      <div flex-gt-md="15" flex-offset-gt-md="5" layout="row" layout-align-gt-md="center center">
+        <div ng-if="module.lastGrade">
+          <span ng-class="gradeUtil.isPositive(module.lastGrade.grade.code) ? 'goodResult' : 'badResult'">{{module.lastGrade.grade | hoisHigherGrade: auth.school.letterGrades}}</span>
+        </div>
+        <div ng-if="!module.lastGrade">
+          <b ng-if="!module.isOk" md-colors="{color: 'accent'}">&nbsp;{{ module.totalDifference }}</b>
+          <b ng-if="module.isOk && module.isGrade" md-colors="{color: 'accent'}">{{'student.result.higher.notGraded' | translate}}</b>
+          <i ng-if="module.isOk && !module.isGrade" md-colors="{color: 'green-600'}" class="material-icons">done</i>
+        </div>
+      </div>
+      <div flex-gt-md="30" flex-offset-gt-md="5" layout="row">
+        <div ng-if="module.lastGrade" layout="row" layout-align="space-between center" style="width: 230px;">
+          <div>{{module.lastGrade.gradeDate | hoisDate}}</div>
+          <div>
+            <span ng-repeat="teacher in module.lastGrade.teachers">{{teacher}}</span>
+          </div>
+        </div>
+        <div ng-if="!module.lastGrade && !module.isOk" layout="row" layout-align="none center">
+          <div>{{'student.result.totalRequired' | translate}}: {{module.studyCredits}}&nbsp;&nbsp;</div>
+          <div>{{'student.result.totalSubmitted' | translate}}: {{module.creditsSubmitted}}&nbsp;&nbsp;</div>
+          <div>{{'student.result.difference' | translate}}: <span ng-class="{'red': module.difference < 0}">{{module.difference}}</span></div>
+        </div>
+      </div>
+    </div>
+  </hois-collapsable-header>
+  <hois-collapsable-header ng-if="module.id === -1">
+      <div layout="column" layout-gt-md="row" class="curriculum-fulfillment-result">
+        <div flex-gt-md="50">
+          <hois-classifier-value class="inline" ng-model="module.type" main-classifier-code="KORGMOODUL"></hois-classifier-value>
+        </div>
+        <div flex-gt-md="15" flex-offset-gt-md="5" layout="row" layout-align-gt-md="center center">
+          <div>
+            <i class="material-icons" flex-offset="10" md-colors="{color: 'green-600'}" ng-if="module.isOk">done</i>
+          </div>
+        </div>
+        <div flex-gt-md="30" flex-offset-gt-md="5" layout="row" layout-align-gt-md="center center"></div>
+      </div>
+  </hois-collapsable-header>
+  <md-table-container>
+    <table md-table>
+      <tbody md-body>
+        <tr md-row ng-if="hasMandatorySubjects(module)">
+          <td colspan="7" class="sub-header1">
+            &nbsp;{{'subject.mandatory' | translate}}
+            <i class="material-icons green" ng-if="module.mandatoryDifference >= 0">done</i>
+          </td>
+        </tr>
+        <tr md-row class="secondary-table-header" ng-if="hasMandatorySubjects(module)">
+          <td md-cell>{{'student.result.higher.subject' | translate}}</td>
+          <td md-cell>{{'student.result.higher.subjectCode' | translate}}</td>
+          <td md-cell>{{'student.result.higher.credits' | translate}}</td>
+          <td md-cell>{{'student.result.higher.grade' | translate}}</td>
+          <td md-cell>{{'student.result.higher.date' | translate}}</td>
+          <td md-cell>{{'student.result.higher.teacher' | translate}}</td>
+          <td md-cell>{{'student.result.isOk' | translate}}</td>
+        </tr>
+        <tr md-row ng-repeat-start="subjectResult in higherResults.subjectResults | filter: filterSubjectResultsByModule(module)
+          | filter: {isOptional: false} | orderBy: 'subject.' + currentLanguageNameVariable()">
+          <td md-cell>
+            <span ng-if="subjectResult.isApelTransfer" class="apelAsterisk">*</span>
+            <span>{{currentLanguageNameField(subjectResult.subject)}}</span>
+            <span ng-if="!subjectResult.isFormalLearning && subjectResult.isApelTransfer"> - {{'student.result.informal' | translate}}</span>
+          </td>
+          <td md-cell>{{subjectResult.subject.code}}</td>
+          <td md-cell>{{subjectResult.subject.credits}}</td>
+          <td md-cell>
+            <table>
+              <tr class="one-row">
+                <td ng-repeat="result in subjectResult.grades | orderBy: ['isActive', 'gradeDate']">
+                  <span ng-if="$index !== 0">/</span>
+                  <span ng-class="{badResult: !gradeUtil.isPositive(result.grade.code)}">{{result.grade | hoisHigherGrade: auth.school.letterGrades}}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{subjectResult.lastGrade.gradeDate | hoisDate}}</td>
+          <td md-cell>
+            <table>
+              <tr ng-repeat="teacher in subjectResult.lastGrade.teachers | orderBy">
+                <td>{{teacher}}</td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{subjectResult.isOk ? 'main.yes' : 'main.no' | translate}}</td>
+        </tr>
+        <tr md-row ng-repeat="replacedSubject in subjectResult.replacedSubjects | orderBy: currentLanguageNameField(subject)" ng-repeat-end
+          class="replaced-subject-row">
+          <td md-cell>{{currentLanguageNameField(replacedSubject.subject)}}</td>
+          <td md-cell>{{replacedSubject.subject.code}}</td>
+          <td md-cell>{{replacedSubject.subject.credits}}</td>
+          <td md-cell colspan="4"></td>
+        </tr>
+        <tr md-row class="secondary-table-header" ng-if="hasMandatorySubjects(module)">
+          <td colspan="2">{{'student.result.totalRequired' | translate}}: {{module.compulsoryStudyCredits}}</td>
+          <td colspan="2">{{'student.result.totalSubmitted' | translate}}: {{module.mandatoryCreditsSubmitted}}</td>
+          <td colspan="3">
+            {{'student.result.difference' | translate}}:
+            <span ng-class="{'red': module.mandatoryDifference < 0}">{{module.mandatoryDifference}}</span>
+          </td>
+        </tr>
+        <tr md-row ng-if="hasOptionalSubjects(module)">
+          <td colspan="7" class="sub-header1">
+            {{'subject.optional' | translate}}
+            <i class="material-icons green" ng-if="module.optionalDifference >= 0">done</i>
+          </td>
+        </tr>
+        <tr md-row class="secondary-table-header" ng-if="hasOptionalSubjects(module)">
+          <td md-cell>{{'student.result.higher.subject' | translate}}</td>
+          <td md-cell>{{'student.result.higher.subjectCode' | translate}}</td>
+          <td md-cell>{{'student.result.higher.credits' | translate}}</td>
+          <td md-cell>{{'student.result.higher.grade' | translate}}</td>
+          <td md-cell>{{'student.result.higher.date' | translate}}</td>
+          <td md-cell>{{'student.result.higher.teacher' | translate}}</td>
+          <td md-cell>{{'student.result.isOk' | translate}}</td>
+        </tr>
+        <tr md-row ng-repeat-start="subjectResult in higherResults.subjectResults
+          | filter: filterSubjectResultsByModule(module) | filter: {isOptional: true} | filter: {electiveModule: '!'}
+          | orderBy: 'subject.' + currentLanguageNameVariable()">
+          <td md-cell>
+            <span ng-if="subjectResult.isApelTransfer" class="apelAsterisk">*</span>
+            <span>{{currentLanguageNameField(subjectResult.subject)}}</span>
+            <span ng-if="!subjectResult.isFormalLearning && subjectResult.isApelTransfer"> - {{'student.result.informal' | translate}}</span>
+          </td>
+          <td md-cell>{{subjectResult.subject.code}}</td>
+          <td md-cell>{{subjectResult.subject.credits}}</td>
+          <td md-cell>
+            <table>
+              <tr>
+                <td ng-repeat="result in subjectResult.grades | orderBy: ['isActive', 'gradeDate']">
+                  <span ng-if="$index !== 0">/</span>
+                  <span ng-class="{badResult: !gradeUtil.isPositive(result.grade.code)}">{{result.grade | hoisHigherGrade: auth.school.letterGrades}}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{subjectResult.lastGrade.gradeDate | hoisDate}}</td>
+          <td md-cell>
+            <table>
+              <tr ng-repeat="teacher in subjectResult.lastGrade.teachers | orderBy">
+                <td>{{teacher}}</td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{subjectResult.isOk ? 'main.yes' : 'main.no' | translate}}</td>
+        </tr>
+        <tr md-row ng-repeat="replacedSubject in subjectResult.replacedSubjects | orderBy: currentLanguageNameField(subject)" ng-repeat-end
+          class="replaced-subject-row">
+          <td md-cell>{{currentLanguageNameField(replacedSubject.subject)}}</td>
+          <td md-cell>{{replacedSubject.subject.code}}</td>
+          <td md-cell>{{replacedSubject.subject.credits}}</td>
+          <td md-cell colspan="4"></td>
+        </tr>
+        <tr md-row ng-if="module.electiveModulesResults.length > 0">
+          <td colspan="1" class="sub-header2">
+            {{'student.result.higher.electiveModules' | translate}}
+            <i class="material-icons green" ng-if="module.electiveModulesNumber <= module.electiveModulesCompleted">done</i>
+          </td>
+          <td colspan="2" class="sub-header2">{{'student.result.higher.electiveModulesRequired' | translate}}: {{module.electiveModulesNumber}}</td>
+          <td colspan="4" class="sub-header2">{{'student.result.higher.electiveModulesCompleted' | translate}}: {{module.electiveModulesCompleted}}</td>
+        </tr>
+        <tr md-row ng-repeat-start="electiveModule in module.electiveModulesResults | orderBy: currentLanguageNameField()">
+          <td md-cell colspan="7" class="sub-header2">
+            {{'module.optional' | translate}}: {{currentLanguageNameField(electiveModule)}}
+            <i class="material-icons green" ng-if="electiveModule.isOk">done</i>
+          </td>
+        </tr>
+
+        <tr md-row ng-repeat="subjectResult in higherResults.subjectResults | filter: filterSubjectResultsByModule(module) | filter: {isOptional: true} |
+                                filter: {electiveModule: electiveModule.referenceNumber} | orderBy: 'subject.' + currentLanguageNameVariable()">
+          <td md-cell>{{currentLanguageNameField(subjectResult.subject)}}</td>
+          <td md-cell>{{subjectResult.subject.code}}</td>
+          <td md-cell>{{subjectResult.subject.credits}}</td>
+          <td md-cell>
+            <table>
+              <tr>
+                <td ng-repeat="result in subjectResult.grades | orderBy: ['isActive', 'gradeDate']">
+                  <span ng-if="$index !== 0">/</span>
+                  <span ng-class="{badResult: !gradeUtil.isPositive(result.grade.code)}">{{result.grade | hoisHigherGrade: auth.school.letterGrades}}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{subjectResult.lastGrade.gradeDate | hoisDate}}</td>
+          <td md-cell>
+            <table>
+              <tr ng-repeat="teacher in subjectResult.lastGrade.teachers | orderBy">
+                <td>{{teacher}}</td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{subjectResult.isOk ? 'main.yes' : 'main.no' | translate}}</td>
+        </tr>
+        <tr ng-repeat-end></tr>
+        <tr md-row class="secondary-table-header" ng-if="hasOptionalSubjects(module)">
+          <td colspan="2">{{'student.result.totalRequired' | translate}}: {{module.optionalStudyCredits}}</td>
+          <td colspan="2">{{'student.result.totalSubmitted' | translate}}: {{module.optionalCreditsSubmitted}}</td>
+          <td colspan="3">
+            {{'student.result.difference' | translate}}:
+            <span ng-class="{'red': optionalDifference < 0}">{{module.optionalDifference}}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </md-table-container>
+
+  <div>&nbsp;</div>
+  <md-checkbox ng-if="module.canMarkComplete && canViewModulesAsDone" ng-model="module.markedComplete" ng-change="changeModuleCompletion(module)"
+      ng-disabled="!canChangeModulesAsDone" name="markAsDone">{{'student.result.higher.markModuleComplete' | translate}}</md-checkbox>
+</hois-collapsable>
+
+
+<hois-collapsable ng-if="higherResults.extraCurriculumModuleResults.length > 0" expanded="formState.extraCurriculumModuleResultsCollapsableOpen">
+  <hois-collapsable-header>
+    <div layout="column" layout-gt-md="row" class="curriculum-fulfillment-result">
+      <div flex-gt-md="50">
+        <td md-cell>{{'student.result.higher.modulesNotTakenIntoAccount' | translate}}</td>
+      </div>
+    </div>
+  </hois-collapsable-header>
+  <md-table-container>
+    <table md-table>
+      <tbody md-body>
+        <tr md-row class="secondary-table-header">
+          <td md-cell>{{'student.result.higher.module' | translate}}</td>
+          <td md-cell>{{'student.result.higher.credits' | translate}}</td>
+          <td md-cell>{{'student.result.higher.grade' | translate}}</td>
+          <td md-cell>{{'student.result.higher.date' | translate}}</td>
+          <td md-cell>{{'student.result.higher.teacher' | translate}}</td>
+        </tr>
+        <tr md-row ng-repeat="module in higherResults.extraCurriculumModuleResults | orderBy: ['curriculumVersionObject.' + currentLanguageNameVariable(), currentLanguageNameVariable()]">
+          <td md-cell>{{currentLanguageNameField(module)}} ({{currentLanguageNameField(module.curriculumVersionObject)}})</td>
+          <td md-cell>{{module.totalCredits}}</td>
+          <td md-cell>
+            <table>
+              <tr class="one-row">
+                <td ng-repeat="result in module.grades | orderBy: ['isActive', 'gradeDate']">
+                  <span ng-if="$index !== 0">/</span>
+                  <span ng-class="{badResult: !gradeUtil.isPositive(result.grade.code)}">{{result.grade | hoisHigherGrade: auth.school.letterGrades}}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td md-cell>{{module.lastGrade.gradeDate | hoisDate}}</td>
+          <td md-cell>
+            <table>
+              <tr ng-repeat="teacher in module.lastGrade.teachers | orderBy">
+                <td>{{teacher}}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </md-table-container>
+</hois-collapsable>
+
+<style>
+  .inline {
+    display: inline;
+  }
+
+  .red {
+    color: red;
+  }
+
+</style>

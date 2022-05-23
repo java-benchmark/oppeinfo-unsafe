@@ -1,0 +1,44 @@
+<div layout="column" layout-padding>
+  <div>
+    <form name="schoolDepartmentForm">
+
+       <md-input-container class="md-block">
+        <label>{{'school.department.code' | translate}}</label>
+        <input ng-model="schoolDepartment.code" name="code" type="text" required md-maxlength="50">
+      </md-input-container>
+
+      <md-input-container class="md-block">
+        <label class="textInput">{{'school.department.nameEt' | translate}}</label>
+        <input ng-model="schoolDepartment.nameEt" name="nameEt" type="text" required md-maxlength="255">
+      </md-input-container>
+
+      <md-input-container class="md-block">
+        <label class="textInput">{{'school.department.nameEn' | translate}}</label>
+        <input ng-model="schoolDepartment.nameEn" name="nameEn" type="text" md-maxlength="255">
+      </md-input-container>
+
+      <md-input-container class="md-block">
+        <label>{{'school.department.parent' | translate}}</label>
+        <hois-school-department-select ng-model="schoolDepartment.parentSchoolDepartment" name="parentSchoolDepartment" excluded-id="schoolDepartment.id"></hois-school-department-select>
+      </md-input-container>
+
+      <div layout="row">
+        <div flex="100">
+          <md-input-container flex>
+            <label>{{'school.department.validFrom' | translate}}</label>
+			      <md-datepicker ng-model="schoolDepartment.validFrom" md-max-date="schoolDepartment.validThru" required></md-datepicker>
+          </md-input-container>
+          <md-input-container flex>
+            <label>{{'school.department.validThru' | translate}}</label>
+			      <md-datepicker ng-model="schoolDepartment.validThru" md-min-date="schoolDepartment.validFrom"></md-datepicker>
+          </md-input-container>
+        </div>
+      </div>
+
+    </form>
+
+    <md-button ng-click="update()" class="md-raised md-primary">{{'main.button.save' | translate}}</md-button>
+    <md-button ng-click="delete()" ng-if="schoolDepartment.id" class="md-raised">{{'main.button.delete' | translate}}</md-button>
+    <md-button ng-click="back('#/school/departments', schoolDepartmentForm)" class="md-raised">{{'main.button.back' | translate}}</md-button>
+  </div>
+</div>

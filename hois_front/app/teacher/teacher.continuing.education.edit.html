@@ -1,0 +1,128 @@
+<md-nav-bar md-selected-nav-item="currentNavItem" nav-bar-aria-label="main selection" ng-cloak>
+    <md-nav-item ng-if="auth.isAdmin()" md-nav-href="#/teachers/{{::teacher.id}}/edit?_noback" name="teacher.data">
+        {{'teacher.data' | translate}}</md-nav-item>
+    <md-nav-item ng-if="auth.isTeacher()" md-nav-href="#/teachers/{{::teacher.id}}/editmydata?_noback" name="teacher.data">
+        {{'teacher.data' | translate}}</md-nav-item>
+    <md-nav-item ng-if="(auth.isAdmin() && teacher.id && teacher.isVocational) || (auth.isTeacher() && teacher.isVocational)" md-nav-href="#/teachers/{{::teacher.id}}/continuingEducation?_noback" name="teacher.continuingEducation">
+        {{'teacher.continuingEducation.label' | translate}}</md-nav-item>
+    <md-nav-item ng-if="(auth.isAdmin() && teacher.id) || (teacher.teacherQualifications.length > 0 && auth.isTeacher())" md-nav-href="#/teachers/{{::teacher.id}}/qualification?_noback" name="teacher.qualification">
+        {{'teacher.qualification.qualification' | translate}}</md-nav-item>
+    <md-nav-item ng-if="(auth.isAdmin() && teacher.id && teacher.isHigher && isHigher) || (auth.isTeacher() && teacher.teacherMobility.length > 0)" md-nav-href="#/teachers/{{::teacher.id}}/mobility?_noback" name="teacher.mobility">
+        {{'teacher.mobility.mobility' | translate}}</md-nav-item>
+    <md-nav-item ng-if="(auth.isAdmin() && teacher.id) || auth.isTeacher()" md-nav-href="#/teachers/{{::teacher.id}}/rtipAbsence?_noback" name="teacher.rtipAbsence">
+        {{'teacher.rtipAbsence.label' | translate}}</md-nav-item>
+    <md-nav-item ng-if="((auth.isAdmin() && teacher.id) || auth.isTeacher()) && teacher.isHigher" md-nav-href="#/teachers/{{::teacher.id}}/programs?_noback" name="teacher.programs">
+        {{'teacher.subjectPrograms.label' | translate}}</md-nav-item>
+  </md-nav-bar>
+
+<md-content class="md-padding">
+    <div>&nbsp;</div>
+    <div layout="row" layout-xs="column" flex class="form-readonly">
+        <div layout="row" layout-sm="column" layout-xs="column" flex>
+        <md-input-container flex>
+            <label>{{auth.higher ? ('teacher.person.nameHigher' | translate) : ('teacher.person.nameVocational' | translate)}}</label>
+            <hois-value value="teacher.person.firstname + ' ' + teacher.person.lastname"></hois-value>
+        </md-input-container>
+        <md-input-container flex>
+            <label>{{auth.higher ? ('teacher.person.idcodeHigher' | translate) : ('teacher.person.idcodeVocational' | translate)}}</label>
+            <hois-value value="teacher.person.idcode"></hois-value>
+        </md-input-container>
+        </div>
+    </div>
+    <form name="continuingEducationsForm" class="nomargin" novalidate>
+        <md-button ng-click="newTeacherContinuingEducation()" class="md-raised">{{'teacher.continuingEducation.add' | translate}}</md-button>
+
+        <div ng-repeat="continuingEducation in teacherContinuingEducations.continuingEducations | orderBy: '-id'">
+            <hois-collapsable label="('teacher.continuingEducation.continuingEducation' | translate)">
+                <div layout="column" flex>
+                    <div layout="row" layout-sm="column" layout-xs="column">
+                        <md-input-container flex="25" flex-sm="100" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.school' | translate}}</label>
+                            <hois-classifier-select ng-model="continuingEducation.school" main-classifier-code="EHIS_TAIEND_OPPEAS" model-value-attr="code"
+                                ng-required="!continuingEducation.otherSchool" ng-disabled="continuingEducation.otherSchool" show-empty></hois-classifier-select>
+                        </md-input-container>
+                        <md-input-container flex="25" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.otherSchool' | translate}}</label>
+                            <textarea ng-model="continuingEducation.otherSchool" name="continuingEducation[{{$index}}].otherSchool" md-maxlength="1000" max-rows="2" ng-required="!continuingEducation.school"
+                                ng-disabled="continuingEducation.school"></textarea>
+                            <div ng-messages="continuingEducationsForm['continuingEducation['+$index+'].otherSchool'].$error">
+                              <div ng-message="md-maxlength">
+                                {{'main.messages.error.maxlength' | translate}}
+                              </div>
+                           </div>
+                        </md-input-container>
+                        <md-input-container flex="25" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.field' | translate}}</label>
+                            <hois-classifier-select ng-model="continuingEducation.field" main-classifier-code="EHIS_TAIEND_VALDKOND" model-value-attr="code"
+                                required></hois-classifier-select>
+                        </md-input-container>
+                    </div>
+                    <div layout="row" layout-sm="column" layout-xs="column">
+                        <md-input-container flex="25" flex-sm="100" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.name' | translate}}</label>
+                            <textarea ng-model="continuingEducation.nameEt" name="continuingEducation[{{$index}}].nameEt" md-maxlength="1000" required></textarea>
+                            <div ng-messages="continuingEducationsForm['continuingEducation['+$index+'].nameEt'].$error">
+                              <div ng-message="md-maxlength">
+                                {{'main.messages.error.maxlength' | translate}}
+                              </div>
+                           </div>
+                        </md-input-container>
+                        <md-input-container flex="25" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.capacity' | translate}}</label>
+                            <input ng-model="continuingEducation.capacity" name="continuingEducation[{{$index}}].capacity" type="number" min="0" max="9999" required>
+                            <div ng-messages="continuingEducationsForm['continuingEducation['+$index+'].capacity'].$error">
+                              <div ng-message="max">
+                                {{'main.messages.error.max' | translate: {max: 9999} }}
+                              </div>
+                              <div ng-message="min">
+                                {{'main.messages.error.min' | translate: {min: 0} }}
+                              </div>
+                            </div>
+                        </md-input-container>
+                        <md-input-container flex="25" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.diplomaCode' | translate}}</label>
+                            <hois-classifier-select ng-model="continuingEducation.diploma" main-classifier-code="EHIS_TAIEND_DOK" model-value-attr="code"
+                                required></hois-classifier-select>
+                        </md-input-container>
+                    </div>
+                    <div layout="row" layout-sm="column" layout-xs="column">
+                        <md-input-container flex="25" flex-sm="100" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.diplomaDate' | translate}}</label>
+                            <md-datepicker ng-model="continuingEducation.diplomaDate" required md-open-on-focus></md-datepicker>
+                        </md-input-container>
+                        <md-input-container flex="25" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.diplomaNr' | translate}}</label>
+                            <input ng-model="continuingEducation.diplomaNr" name="continuingEducation[{{$index}}].diplomaNr" md-maxlength="100" type="text">
+                            <div ng-messages="continuingEducationsForm['continuingEducation['+$index+'].diplomaNr'].$error">
+                              <div ng-message="md-maxlength">
+                                {{'main.messages.error.maxlength' | translate}}
+                              </div>
+                           </div>
+                        </md-input-container>
+                        <md-input-container flex="25" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                            <md-checkbox ng-model="continuingEducation.isAbroad">{{'teacher.continuingEducation.isAbroad' | translate}}</md-checkbox>
+                        </md-input-container>
+                    </div>
+                    <div layout="row" layout-sm="column" layout-xs="column">
+                        <md-input-container flex="25" flex-sm="100" flex-offset-xs="0" flex-offset-sm="0">
+                            <label>{{'teacher.continuingEducation.abroadDescription' | translate}}</label>
+                            <textarea ng-model="continuingEducation.abroadDesc" name="continuingEducation[{{$index}}].abroadDesc" md-maxlength="4000" max-rows="5" ng-disabled="!continuingEducation.isAbroad"></textarea>
+                            <div ng-messages="continuingEducationsForm['continuingEducation['+$index+'].abroadDesc'].$error">
+                              <div ng-message="md-maxlength">
+                                {{'main.messages.error.maxlength' | translate}}
+                              </div>
+                           </div>
+                        </md-input-container>
+                    </div>
+                </div>
+                <md-button ng-click="deleteContinuingEducation(continuingEducation)" class="md-raised">{{'main.button.delete' | translate}}</md-button>
+            </hois-collapsable>
+        </div>
+
+        <md-button ng-click="updateContinuingEducations()" class="md-raised md-primary" ng-if="teacherContinuingEducations.continuingEducations.length > 0">
+            {{'main.button.save' | translate}}
+        </md-button>
+        <md-button ng-if="auth.isTeacher()" ng-click="back('#/teachers/myData')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+        <md-button ng-if="auth.isAdmin()" ng-click="back('#/teachers', continuingEducationsForm)" class="md-raised">{{'main.button.back' | translate}}</md-button>
+    </form>
+</md-content>

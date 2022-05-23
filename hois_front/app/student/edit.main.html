@@ -1,0 +1,228 @@
+<div layout="column" layout-padding>
+  <div>
+    <div layout="row" class="form-readonly">
+      <md-input-container flex>
+        <label>{{'student.label' | translate}}</label>
+        <hois-value value="student.person.fullname"></hois-value>
+      </md-input-container>
+    </div>
+
+    <form name="studentEditForm" novalidate>
+      <hois-collapsable label="('student.contact' | translate)">
+
+        <md-input-container class="md-block">
+          <label>{{'student.email' | translate}}</label>
+          <input ng-model="student.person.email" name="email" type="text" required md-maxlength="255">
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label class="textInput">{{'student.phone' | translate}}</label>
+          <input ng-model="student.person.phone" name="phone" type="text" required md-maxlength="100">
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label class="textInput">{{'student.otherContact' | translate}}</label>
+          <input ng-model="student.otherContact" name="otherContact" type="text" md-maxlength="300">
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label>{{'student.residenceCountry' | translate}}</label>
+          <hois-classifier-select ng-model="student.person.residenceCountry" name="residenceCountry" main-classifier-code="RIIK" required model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+
+        <div class="md-block" ng-if="student.person.residenceCountry === 'RIIK_EST'">
+          <hois-ads-adapter class="md-text" ng-model="student.person.addressAds" ads-oid-model="student.person.addressAdsOid"
+            address-model="student.person.address"></hois-ads-adapter>
+        </div>
+
+        <md-input-container class="md-block" ng-if="student.person.residenceCountry !== 'RIIK_EST'">
+          <label class="textInput">{{'student.address' | translate}}</label>
+          <input ng-model="student.person.address" name="address" type="text" md-maxlength="255">
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label class="textInput">{{'student.postcode' | translate}}</label>
+          <input ng-model="student.person.postcode" name="postcode" type="text" md-maxlength="10">
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher">
+          <label>{{'student.citizenship' | translate}}</label>
+          <hois-classifier-select ng-model="student.person.citizenship" name="citizenship" main-classifier-code="RIIK" model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher">
+
+          <label>{{'student.language' | translate}}</label>
+          <hois-classifier-select ng-model="student.person.language" name="language" main-classifier-code="OPPEKEEL" model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label class="textInput">{{'student.bankaccount' | translate}}</label>
+          <input ng-model="student.person.bankaccount" name="bankaccount" type="text" md-maxlength="50">
+        </md-input-container>
+
+      </hois-collapsable>
+
+      <hois-collapsable label="('student.study' | translate)" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher">
+
+        <md-input-container class="md-block" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher">
+          <label>{{'student.studyLanguage' | translate}}</label>
+          <hois-classifier-select ng-model="student.studyLanguage" name="studyLanguage" main-classifier-code="OPPEKEEL" model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+        <md-input-container class="md-block" ng-if="(student.userIsSchoolAdmin || student.userIsLeadingTeacher) && !student.isVocational">
+          <label>{{'student.curriculumSpeciality' | translate}}</label>
+          <md-select ng-model="student.curriculumSpeciality" name="studyLanguage" ng-model-options="{trackBy: '$value.id'}">
+            <md-option ng-value="null"></md-option>
+            <md-option ng-value="speciality" track ng-repeat="speciality in specialities">{{currentLanguageNameField(speciality)}}</md-option>
+          </md-select>
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="(student.userIsSchoolAdmin || student.userIsLeadingTeacher) && !student.isGuestStudent">
+          <label>{{'student.nominalStudyEnd' | translate}}</label>
+          <md-datepicker class="wider-datepicker" name="nominalStudyEnd" ng-model="student.nominalStudyEnd" md-min-date="student.studyStart"></md-datepicker>
+          <div ng-messages="studentEditForm.nominalStudyEnd.$error">
+            <div ng-message="mindate">
+              {{'student.error.cannotBeBeforeStudyStart' | translate:errorParams}}
+            </div>
+          </div>
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="(student.userIsSchoolAdmin || student.userIsLeadingTeacher) && !student.isGuestStudent">
+          <label>{{'student.finSpecific' | translate}}</label>
+          <hois-classifier-select ng-model="student.finSpecific" name="finSpecific" main-classifier-code="FINTAPSUSTUS" model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label>{{'student.schoolEmail' | translate}}</label>
+          <input ng-model="student.schoolEmail" name="schoolEmail" type="text" md-maxlength="255">
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="!student.isGuestStudent">
+          <label>{{'student.previousStudyLevel' | translate}}</label>
+          <hois-classifier-select ng-model="student.previousStudyLevel" name="previousStudyLevel" main-classifier-code="OPPEASTE" required model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+
+        <md-input-container ng-if="student.isVocational && !student.isGuestStudent" class="md-block">
+          <label>{{'student.studyCompany' | translate}}</label>
+          <input ng-model="student.studyCompany" name="studyCompany" type="text" md-maxlength="1000">
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="!student.isGuestStudent">
+          <label>{{'student.previousSchoolName' | translate}}</label>
+          <input ng-model="student.previousSchoolName" name="previousSchoolName" type="text" md-maxlength="255">
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="!student.isGuestStudent">
+          <label>{{'student.previousSchoolEndDate' | translate}}</label>
+          <md-datepicker class="wider-datepicker" ng-model="student.previousSchoolEndDate"></md-datepicker>
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label>{{'student.dormitory' | translate}}</label>
+          <hois-classifier-select ng-model="student.dormitory" name="dormitory" main-classifier-code="YHISELAMU" required model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label>{{'student.jobOccupation' | translate}}</label>
+          <input ng-model="student.jobOccupation" name="jobOccupation" type="text" md-maxlength="100">
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label>{{'student.job' | translate}}</label>
+          <input ng-model="student.job" name="job" type="text" md-maxlength="200">
+        </md-input-container>
+
+        <md-checkbox ng-model="student.isAcadStudyAllowed" ng-if="student.status === 'OPPURSTAATUS_A'" name="isAcadStudyAllowed">
+          {{'student.isAcadStudyAllowed' | translate}}
+        </md-checkbox>
+
+      </hois-collapsable>
+
+      <hois-collapsable label="('student.foreignLanguages.label' | translate)" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher">
+        <div layout="column">
+          <div layout="row" layout-xs="column" ng-repeat="row in student.foreignLanguageTypes">
+            <div layout="row" flex="50" flex-xs="100" ng-if="row.length > 0">
+              <div class="form-readonly" layout="row" flex="50" style="margin-top: 20px">
+                <md-input-container flex="100" class="md-block">
+                  <label>{{'student.foreignLanguageType' | translate}}</label>
+                  <hois-classifier-value ng-model="row[0].foreignLangTypeCode" main-classifier-code="VOORKEEL_TYYP" disabled model-value-attr="code"></hois-classifier-value>
+                </md-input-container>
+              </div>
+              <md-input-container flex="50" class="md-block" flex-offset="5">
+                <label>{{'student.foreignLanguage' | translate}}</label>
+                <hois-classifier-select ng-model="row[0].foreignLangCode" main-classifier-code="EHIS_VOORKEEL" ng-init="addValueToOtherFilters(row[0], '{{row[0].foreignLangCode}}')"
+                ng-change="addValueToOtherFilters(row[0], '{{row[0].foreignLangCode}}')" model-value-attr="code" filter-values="row[0].languageFilter"></hois-classifier-select>
+              </md-input-container>
+            </div>
+            <div layout="row" flex="50" flex-xs="100" ng-if="row.length > 1">
+              <div class="form-readonly" layout="row" flex="50" style="margin-top: 20px">
+                <md-input-container flex="100" class="md-block" flex-offset="5" flex-offset-xs="0">
+                  <label>{{'student.foreignLanguageType' | translate}}</label>
+                  <hois-classifier-value ng-model="row[1].foreignLangTypeCode" main-classifier-code="VOORKEEL_TYYP" disabled model-value-attr="code"></hois-classifier-value>
+                </md-input-container>
+              </div>
+              <md-input-container flex="50" class="md-block" flex-offset="5">
+                <label>{{'student.foreignLanguage' | translate}}</label>
+                <hois-classifier-select ng-model="row[1].foreignLangCode" main-classifier-code="EHIS_VOORKEEL" ng-init="addValueToOtherFilters(row[1], '{{row[1].foreignLangCode}}')"
+                 ng-change="addValueToOtherFilters(row[1], '{{row[1].foreignLangCode}}')" model-value-attr="code" filter-values="row[1].languageFilter"></hois-classifier-select>
+              </md-input-container>
+            </div>
+          </div>
+        </div>
+      </hois-collapsable>
+
+      <hois-collapsable label="('student.representatives' | translate)" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher">
+        <md-input-container class="md-block">
+          <label>{{'student.representativeOtherContact' | translate}}</label>
+          <input ng-model="student.representativeOtherContact" name="representativeOtherContact" type="text" md-maxlength="300">
+        </md-input-container>
+      </hois-collapsable>
+
+      <hois-collapsable label="('student.specialNeeds' | translate)" ng-if="(student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher) && !student.isGuestStudent">
+
+        <md-checkbox ng-model="student.isSpecialNeed" name="isSpecialNeed">
+          {{'student.isSpecialNeed' | translate}}
+        </md-checkbox>
+
+        <md-input-container class="md-block">
+          <label>{{'student.specialNeed' | translate}}</label>
+          <hois-classifier-select ng-model="student.specialNeeds" name="specialNeeds"
+            main-classifier-code="ERIVAJADUS" model-value-attr="code" multiple only-valid
+            criteria="{higher: !student.isVocational ? true : undefined, vocational: student.isVocational ? true : undefined}"></hois-classifier-select>
+        </md-input-container>
+
+        <md-checkbox ng-model="student.isRepresentativeMandatory" name="isRepresentativeMandatory">
+          {{'student.isRepresentativeMandatory' | translate}}
+        </md-checkbox>
+
+      </hois-collapsable>
+
+      <hois-collapsable label="('student.photo.label' | translate)" ng-if="student.userIsSchoolAdmin || student.userIsLeadingTeacher || student.userIsStudentGroupTeacher || student.studentCanAddPhoto">
+        <lf-ng-md-file-input name="photoFiles"
+          lf-files="photoFiles" lf-filesize="3MB"
+          accept=".png, .jpg, .jpeg" lf-mimetype="image/*" preview
+          lf-placeholder="{{!student.photo ? ('student.photo.notSelected' | translate) :  ('student.photo.selectNewPhoto' | translate)}}"
+          lf-browse-label="{{'student.photo.selectPhoto' | translate}}"
+          lf-remove-label="{{'main.button.clear' | translate}}"></lf-ng-md-file-input>
+    
+        <div ng-messages="studentEditForm.photoFiles.$error" style="color:red;">
+          <div ng-message="filesize">{{'main.messages.error.fileTooLarge' | translate}} 3MB!</div>
+          <div ng-message="mimetype">{{'main.messages.error.wrongExtension' | translate}} png, jpg, jpeg</div>
+        </div>
+
+        <h3 ng-if="student.photo">{{'student.photo.currentPhoto' | translate}}</h3>
+        <div flex="30" flex-sm="100" flex-xs="100">
+          <img ng-if="student.photo" flex="100" ng-src="{{student.imageUrl}}" id="currentPhotoView">
+        </div>
+        <br>
+        <md-checkbox ng-model="student.deleteCurrentPhoto" name="deleteCurrentPhoto" ng-if="student.photo && !photoFiles[0]">
+            {{'student.photo.delete' | translate}}
+        </md-checkbox>
+      </hois-collapsable>
+
+    </form>
+
+    <md-button ng-click="update()" class="md-raised md-primary">{{'main.button.save' | translate}}</md-button>
+    <md-button ng-click="back('#/students/' + student.id + '/main', studentEditForm)" class="md-raised">{{'main.button.back' | translate}}</md-button>
+  </div>
+</div>

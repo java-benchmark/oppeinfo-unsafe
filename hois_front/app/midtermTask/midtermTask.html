@@ -1,0 +1,211 @@
+<div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+
+  <form name="midtermTaskForm" layout="column" class="nomargin">
+
+    <md-table-container>
+      <table md-table>
+        <thead md-head>
+          <tr md-row ng-if="!record.canBeEdited" class="sortableColumn">
+            <th md-column>{{'midtermTask.nr' | translate}}</th>
+            <th md-column ng-click="sortBy('nameEt')">
+              {{'midtermTask.nameEt' | translate}} *
+              <span class="sortorder" ng-show="propertyName === 'nameEt'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('nameEn')" class="sortableColumn">
+              {{'midtermTask.nameEn' | translate}}
+              <span class="sortorder" ng-show="propertyName === 'nameEn'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('descriptionEt')" class="sortableColumn">
+              {{'midtermTask.descriptionEt' | translate}} *
+              <span class="sortorder" ng-show="propertyName === 'descriptionEt'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('descriptionEn')" class="sortableColumn">
+              {{'midtermTask.descriptionEn' | translate}}
+              <span class="sortorder" ng-show="propertyName === 'descriptionEn'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('maxPoints')" class="sortableColumn">
+              {{'midtermTask.maxPoints' | translate}} *
+              <span class="sortorder" ng-show="propertyName === 'maxPoints'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('percentage')" class="sortableColumn">
+              {{'midtermTask.percentage' | translate}} *
+              <span class="sortorder" ng-show="propertyName === 'percentage'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('taskDate')" class="sortableColumn">
+              {{'midtermTask.taskDate' | translate}}
+              <span class="sortorder" ng-show="propertyName === 'taskDate'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('threshold')" class="sortableColumn">
+              {{'midtermTask.threshold' | translate}}
+              <span class="sortorder" ng-show="propertyName === 'threshold'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column ng-click="sortBy('thresholdPercentage')" class="sortableColumn">
+              {{'midtermTask.thresholdPercentage' | translate}}
+              <span class="sortorder" ng-show="propertyName === 'thresholdPercentage'" ng-class="{reverse: reverse}"></span>
+            </th>
+            <th md-column></th>
+          </tr>
+          <tr md-row ng-if="record.canBeEdited">
+            <th md-column>{{'midtermTask.nr' | translate}}</th>
+            <th md-column>{{'midtermTask.nameEt' | translate}} *</th>
+            <th md-column>{{'midtermTask.nameEn' | translate}}</th>
+            <th md-column>{{'midtermTask.descriptionEt' | translate}} *</th>
+            <th md-column>{{'midtermTask.descriptionEn' | translate}}</th>
+            <th md-column>{{'midtermTask.maxPoints' | translate}} *</th>
+            <th md-column>{{'midtermTask.percentage' | translate}} *</th>
+            <th md-column>{{'midtermTask.taskDate' | translate}}</th>
+            <th md-column>{{'midtermTask.threshold' | translate}}</th>
+            <th md-column>{{'midtermTask.thresholdPercentage' | translate}}</th>
+            <th md-column></th>
+          </tr>
+
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in record.midtermTasks" ng-class-odd="'odd'" ng-class-even="'even'" ng-if="record.canBeEdited">
+            <ng-form name="midtermTaskUnitForm">
+              <td md-cell>
+                {{$index + 1}}
+                <span ng-if="row.moodleGradeItemId"><md-icon md-font-set="material-icons">school</md-icon></span>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.nameEt" type="text" md-maxlength="255" required
+                  aria-label="{{'midtermTask.nameEt' | translate}}">
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.nameEn" type="text" md-maxlength="255"
+                  aria-label="{{'midtermTask.nameEn' | translate}}">
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.descriptionEt" type="text" md-maxlength="4000"
+                  aria-label="{{'midtermTask.descriptionEt' | translate}}" required>
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.descriptionEn" type="text" md-maxlength="4000"
+                  aria-label="{{'midtermTask.descriptionEn' | translate}}">
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.maxPoints" type="number" min="0" max="999" required
+                  aria-label="{{'midtermTask.maxPoints' | translate}}" pattern="^\d+(\.\d{1})?$"
+                  ng-disabled="row.moodleGradeItemId">
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.percentage" type="number" min="0" max="100" required
+                  aria-label="{{'midtermTask.percentage' | translate}}" pattern="^\d+$">
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <md-datepicker ng-model="row.taskDate" md-open-on-focus aria-label="{{currentLanguageNameField(row)}} {{'midtermTask.taskDate' | translate}}"></md-datepicker>
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <md-checkbox ng-model="row.threshold" ng-change="clearThresholdPercentage(row)"
+                  aria-label="{{currentLanguageNameField(row)}} {{'midtermTask.threshold' | translate}}"
+                  ng-disabled="row.moodleGradeItemId">
+                </md-checkbox>
+              </td>
+              <td md-cell>
+                <md-input-container>
+                  <input ng-model="row.thresholdPercentage" type="number" min="0" max="100"
+                  ng-disabled="!row.threshold || row.moodleGradeItemId" ng-required="row.threshold"
+                  aria-label="{{'midtermTask.thresholdPercentage' | translate}}" pattern="^\d+$">
+                </md-input-container>
+              </td>
+              <td md-cell><a class="remove nomargin" ng-click="removeRow(row)">&times;</a></td>
+            </ng-form>
+          </tr>
+          <tr md-row ng-repeat="row in record.midtermTasks | orderBy:propertyName:reverse" ng-class-odd="'odd'" ng-class-even="'even'" ng-if="!record.canBeEdited">
+            <ng-form name="midtermTaskUnitForm">
+              <td md-cell>{{$index + 1}}</td>
+              <td md-cell>{{row.nameEt}}</td>
+              <td md-cell>{{row.nameEn}}</td>
+              <td md-cell>{{row.descriptionEt}}</td>
+              <td md-cell>{{row.descriptionEn}}</td>
+              <td md-cell>{{row.maxPoints}}</td>
+              <td md-cell>{{row.percentage}}</td>
+              <td md-cell>{{row.taskDate | hoisDate}}</td>
+              <td md-cell>
+                <md-checkbox ng-model="row.threshold"
+                        aria-label="{{currentLanguageNameField(row)}} {{'midtermTask.threshold' | translate}}"
+                        disabled>
+                </md-checkbox>
+              </td>
+              <td md-cell>{{row.thresholdPercentage}}</td>
+              <td md-cell></td>
+            </ng-form>
+          </tr>
+          <!-- colspan is not used because of the line under previous row on readOnly form -->
+          <tr md-row>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell>{{'midtermTask.percentageSum' | translate}}: {{getPercentageSum()}}</td>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell></td>
+            <td md-cell></td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <div layout="row">
+        <md-button class="md-primary" ng-click="addRow()" ng-show="record.canBeEdited">{{'main.button.addNewRow' | translate}}</md-button>
+    </div>
+    <div layout="row">
+        <md-button class="md-raised md-primary" ng-click="save()" ng-show="record.canBeEdited">{{'main.button.save' | translate}}</md-button>
+        <md-button class="md-raised" ng-click="openCopyDialog()" ng-show="record.canBeEdited">{{'midtermTask.copy' | translate}}</md-button>
+        <md-button class="md-raised" ng-click="back('#/subjectStudyPeriods/' + subjectStudyPeriodId + '/midtermTasks/studentResults', midtermTaskForm)">{{'main.button.back' | translate}}</md-button>
+    </div>
+  </form>
+</div>
+
+
+
+<style>
+  /* remove chrome blue outline on focus */
+  th:focus { outline: none; }
+
+  span:focus { outline: none; }
+
+  .sortableColumn {
+    cursor: pointer;
+  }
+
+  .sortorder:after, sortorder.reverse:after {
+    text-align: left;
+    vertical-align: middle;
+    display: inline-block;
+    height: 24px!important;
+    width: 24px;
+    min-height: 24px;
+    min-width: 24px;
+    font-weight: 10!important;
+    font-size: 24px!important;
+    line-height: 24px!important;
+    font-family: "Material Icons";
+    transition: transform .25s,opacity .25s;
+    content: '\e5d8';
+  }
+
+  .sortorder:after {
+    transform: rotate(0);
+  }
+
+  .sortorder.reverse:after {
+    transform: rotate(180deg);
+  }
+</style>

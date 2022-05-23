@@ -1,0 +1,135 @@
+<div class="ois-form-layout-padding">
+  <div>
+    <h2>{{"module.viewToughtModule" | translate}}</h2>
+    <span flex></span>
+  </div>
+  <span flex></span>
+  <div class="ois-form-layout" layout="column" layout-margin ng-cloak>
+    <div layout="column">
+      <div layout="row">
+        <md-input-container flex>
+          <label>{{'curriculum.specialty.specialty' | translate}}</label>
+          <md-select multiple ng-model="data.specialitiesReferenceNumbers" disabled>
+            <md-option ng-repeat="speciality in specialities | orderBy: 'nameEt'" ng-value="speciality.id">
+              {{currentLanguageNameField(speciality)}}
+            </md-option>
+          </md-select>
+        </md-input-container>
+      </div>
+      <div layout="row" layout-sm="column" layout-xs="column">
+        <md-input-container flex>
+          <label>{{'module.type' | translate}}</label>
+          <md-select ng-model="data.typeObject" disabled >
+            <md-option ng-repeat="type in moduleTypes | filter: {'code': 'KORGMOODUL_M'}" ng-value="type">
+              {{currentLanguageNameField(type)}}
+            </md-option>
+            <md-option ng-repeat="type in moduleTypes | filter: {'code': '!KORGMOODUL_M'} | orderBy: 'nameEt'" ng-value="type">
+              {{currentLanguageNameField(type)}}
+            </md-option>
+          </md-select>
+        </md-input-container>
+      </div>
+
+      <div ng-if="data.typeObject.code === 'KORGMOODUL_M'" layout="row" layout-sm="column" layout-xs="column">
+        <md-input-container flex>
+          <label>{{'module.typeNameEt' | translate}}</label>
+          <input ng-model="data.typeNameEt" type="text"readonly>
+        </md-input-container>
+        <md-input-container flex>
+          <label>{{'module.typeNameEn' | translate}}</label>
+          <input ng-model="data.typeNameEn" type="text" readonly>
+        </md-input-container>
+      </div>
+
+      <md-input-container>
+        <label>{{'module.orderNr' | translate}}</label>
+        <input ng-model="data.orderNr" type="number" readonly>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.nameEt' | translate}}</label>
+        <input ng-model="data.nameEt" type="text" readonly>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.nameEn' | translate}}</label>
+        <input ng-model="data.nameEn" type="text" readonly>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.objectivesEt' | translate}}</label>
+        <textarea ng-model="data.objectivesEt" readonly></textarea>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.objectivesEn' | translate}}</label>
+        <textarea ng-model="data.objectivesEn" readonly></textarea>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.studyOutcomesEt' | translate}}</label>
+        <textarea ng-model="data.outcomesEt" readonly></textarea>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.studyOutcomesEn' | translate}}</label>
+        <textarea ng-model="data.outcomesEn" readonly></textarea>
+      </md-input-container>
+      <div>
+        <fieldset ng-show="formState.moduleMustHaveSubjects">
+          <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'curriculum.version.subjects' | translate}}&nbsp;</legend>
+          <md-table-container>
+            <table md-table class="secondary-table nowrap-first" ng-show="data.subjects.length > 0">
+              <thead md-head>
+                <tr md-row>
+                  <th md-column>{{'curriculum.version.subjectsName' | translate}}</th>
+                  <th md-column>EAP</th>
+                  <th md-column>{{'module.optionalSubject' | translate}}</th>
+                  <th md-column>{{'module.studyYear' | translate}}</th>
+                  <th md-column>
+                    <hois-classifier-value ng-value="'OPPEPERIOOD_S'" main-classifier-code="OPPEPERIOOD"></hois-classifier-value>
+                  </th>
+                  <th md-column>
+                    <hois-classifier-value ng-value="'OPPEPERIOOD_K'" main-classifier-code="OPPEPERIOOD"></hois-classifier-value>
+                  </th>
+                </tr>
+              </thead>
+              <tbody md-body>
+                <tr md-row ng-repeat="subject in data.subjects | orderBy: 'code'">
+                  <td md-cell>{{subject.code}} - {{currentLanguageNameField(subject)}}</td>
+                  <td md-cell>{{subject.credits}}</td>
+                  <td md-cell>
+                    <md-checkbox ng-model="subject.optional" aria-label="subject is mandatory" disabled></md-checkbox>
+                  </td>
+                  <td md-cell>{{subject.studyYearNumber}}</td>
+                  <td md-cell>
+                    <md-checkbox ng-model="subject.autumn" disabled></md-checkbox>
+                  </td>
+                  <td md-cell>
+                    <md-checkbox ng-model="subject.spring" disabled></md-checkbox>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </md-table-container>
+        </fieldset>
+      </div>
+      <div>&nbsp;</div>
+
+      <md-input-container flex>
+        <label>{{'module.optionalEap' | translate}}</label>
+        <input name="optionalStudyCredits" ng-model="data.optionalStudyCredits" readonly>
+      </md-input-container>
+      <md-input-container flex ng-show="formState.moduleMustHaveSubjects">
+        <label>{{'module.mandatoryEap' | translate}}</label>
+        <input ng-model="data.compulsoryStudyCredits" type="number" readonly>
+      </md-input-container>
+      <md-input-container flex ng-show="formState.moduleMustHaveSubjects">
+        <label>{{'module.overallEap' | translate}}</label>
+        <input name="totalCredits" ng-model="data.totalCredits" type="number" readonly>
+      </md-input-container>
+
+      <md-input-container class="md-block" ng-if="schoolModuleGrades">
+        <md-checkbox ng-model="data.isGrade" name="isGrade" disabled>
+            {{'module.isGrade' | translate}}
+        </md-checkbox>
+      </md-input-container>
+      <span flex></span>
+    </div>
+  </div>
+  <md-button class="md-raised" ng-click="back(backToViewForm)">{{"main.button.back" | translate}}</md-button>
+</div>

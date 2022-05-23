@@ -1,0 +1,180 @@
+<div class="ois-form-layout-padding" layout="column" ng-cloak>
+  <div layout-padding id="groupSelection">
+    <div layout="row" class="form-readonly">
+      <md-input-container flex>
+        <label class="textInput">{{'timetable.timetablePlan.timetablePeriod' | translate}}</label>
+        <hois-value value="(plan.startDate | hoisDate) + '-'+(plan.endDate | hoisDate)" />
+      </md-input-container>
+      <div flex layout="row" layout-align="end start" class="common-label" md-colors="{color: 'background-400'}">
+        <span ng-repeat="c in capacityTypes | orderBy: currentLanguageNameField()">
+          <span ng-if="!$first">|</span>
+          {{::c.value.toUpperCase()}} - {{currentLanguageNameField(c)}}
+        </span>
+      </div>
+    </div>
+    <hois-collapsable expanded="false" label="('timetable.timetablePlan.showGroups' | translate)">
+      <fieldset tabindex="1">
+        <div layout="column">
+          <md-checkbox ng-model="plan.selectAll" flex-offset="5">
+            {{'timetable.timetablePlan.selectAll' | translate}}
+          </md-checkbox>
+          <md-grid-list ng-app="app" md-cols="5" md-cols-md="3" md-cols-sm="2" md-cols-xs="1" md-row-height="5:1">
+            <md-grid-tile ng-repeat="group in plan.studentGroups">
+              <md-checkbox ng-model="group._selected" ng-change="updateGroups()">
+                {{group.code}} </md-checkbox>
+            </md-grid-tile>
+            <md-grid-tile ng-repeat="pair in plan.subjectTeacherPairs">
+              <md-checkbox ng-model="pair._selected" ng-change="updatePairs()">
+                {{pair.code}}</md-checkbox>
+            </md-grid-tile>
+          </md-grid-list>
+        </div>
+      </fieldset>
+    </hois-collapsable>
+
+    <div layout="column" flex layout-gt-md="row">
+      <div flex="50" layout="column" layout-gt-sm="row">
+        <md-input-container flex="100" flex-gt-sm="60">
+          <label>{{'timetable.timetablePlan.planGroupLessonsSubject' | translate}}</label>
+          <hois-select ng-model="plan.selectedGroup" values="plan.currentStudentGroups" show-property="code" value-property="dropdownValue"></hois-select>
+        </md-input-container>
+        <hois-autocomplete flex="100" flex-gt-sm="35" flex-offset-gt-sm="5" ng-model="plan.eventRoom" method="rooms" label="lessonplan.event.room"></hois-autocomplete>
+      </div>
+      <div flex="45" layout="column" layout-gt-sm="row" flex-offset-gt-md="5">
+        <md-input-container flex="100"  flex-gt-sm="35">
+          <label>{{'timetable.timetablePlan.lessonAmount' | translate}}</label>
+          <input ng-model="plan.lessonAmount" type="number" min="1" max="99" step="1" autofocus aria-label="lessonamount">
+        </md-input-container>
+        <md-input-container flex="100" flex-gt-sm="60" flex-offset-gt-sm="5" ng-if="loaded">
+          <label>{{'timetable.timetablePlan.repetition' | translate}}</label>
+          <hois-classifier-select ng-model="plan.repeatCode" model-value-attr="code" aria-label="repeatcode" main-classifier-code="TUNNIPLAAN_SYNDMUS_KORDUS">
+          </hois-classifier-select>
+        </md-input-container>
+      </div>
+    </div>
+
+    <div ng-if="plan.selectedGroup && plan.repeatCode && plan.lessonAmount">
+      <fieldset tabindex="1">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'timetable.timetablePlan.plannedLessons' | translate}}<span ng-if="plan.selectedGroup"> {{'timetable.timetablePlan.group' | translate}} {{plan.selectedStudentGroupObject.code}}</span></legend>
+        <md-table-container>
+          <table md-table class="secondary-table">
+            <thead md-head>
+              <tr md-row>
+                <th md-column ng-repeat="capacity in plan.currentCapacitiesGrouped track by $index">
+                  <span title="{{currentLanguageNameField(capacity[0].subject)}}&#10;{{capacity[0].teachersString}}&#10;{{capacity[0].subgroupsString}}">{{capacity[0].subjectCode}}</span>
+                  <span title="{{'timetable.timetablePlan.periodPlannedLessons' | translate}} / {{'timetable.timetablePlan.periodAllocatedLessons' | translate}}">
+                    (<span ng-repeat="current in capacity" ng-style="{'color': isUnderAllocatedLessons(current) ? 'rgba(0,0,0,0.87)' : 'red'}">
+                      {{getCapacityTypeValue(current.capacityType)}}: {{current.totalPlannedLessons}}/{{current.totalAllocatedLessons
+                      ? current.totalAllocatedLessons : 0}}{{$last ? '' : ', '}}</span> )
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr md-row ng-class-odd="'odd'" ng-class-even="'even'" id="timetable-planned">
+                <td md-cell ng-repeat="capacity in plan.currentCapacitiesGrouped track by $index" id="timetable-planned-column">
+                  <div ng-repeat="current in capacity" style="background-color: {{getColorBySubjectStudyPeriod(current.subjectStudyPeriod)}}"
+                    id="{{current.subjectStudyPeriod}}-{{current.capacityType}}" journal-id="{{current.subjectStudyPeriod}}"
+                    ois-drag="true" capacity-type="{{current.capacityType}}" class="timetable-drag timetable-planned-capacity"
+                    title="{{current.subjectCode}}/{{currentLanguageNameField(getCapacityType(current.capacityType))}}&#10;{{current.teachersString}}&#10;{{capacity[0].subgroupsString}}">
+                    <span>{{current.subjectCode}}/{{getCapacityTypeValue(current.capacityType)}}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+      </fieldset>
+    </div>
+
+    <div layout="row">
+      <md-input-container flex="30" flex-sm="100" flex-xs="100">
+        <label>{{'timetable.timetablePlan.week' | translate}}</label>
+        <md-select ng-model="plan.selectedWeek" placeholder="{{'timetable.timetablePlan.week' | translate}}">
+          <md-option ng-value="week.start" ng-repeat="week in plan.weeks">{{ week.start | hoisDate }}-{{ week.end | hoisDate }}</md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+
+    <div flex="20" flex-sm="100" flex-xs="100" flex-offset="3">
+      <md-input-container layout-align="start center">
+        <md-checkbox ng-model="plan.showLessonTimes" flex-offset="5">
+          {{'timetable.timetablePlan.showLessonTimes' | translate}}
+        </md-checkbox>
+      </md-input-container>
+    </div>
+
+    <div ng-if="plan.showLessonTimes">
+      <md-radio-group ng-model="plan.lessonTimeBuilding" layout="row" aria-label="absence" ng-change="lessonTimeBuildingChanged(building)">
+        <md-radio-button ng-repeat="building in plan.buildings" value="{{building.id}}">{{currentLanguageNameField(building)}}</md-radio-button>
+      </md-radio-group>
+    </div>
+    <div>&nbsp;</div>
+  </div>
+
+
+  <div id="timetableCreation" ng-if="plan.currentStudentGroups.length > 0">
+    <div ng-if="totalLessons === 0">
+      <md-whiteframe class="md-whiteframe-1dp attention-whiteframe" flex="100" layout layout-align="left center">
+          <div md-colors="{color: 'warn'}">
+            <md-icon md-colors="{color: 'warn'}" md-font-set="material-icons">info_outline</md-icon>
+            <span>{{'timetable.timetablePlan.noPeriodLessonTimes' | translate}}</span>
+          </div>
+        </md-whiteframe>
+    </div>
+    <md-table-container fixed-column-table fixed-columns="1" class="fixed-md-table-container">
+      <table md-table class="higher">
+        <thead md-head>
+          <tr md-row>
+            <th md-column></th>
+            <th md-column ng-if="lessonsInDay[date] > 0" ng-repeat="date in plan.datesForTimetable" colspan="{{lessonsInDay[date]}}">
+              {{'timetable.timetablePlan.' + weekday[date.getDay()] | translate}}
+            </th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-class-odd="'odd'" ng-class-even="'even'">
+            <td class="fixed-cell"></td>
+            <td ng-if="$even" ng-repeat="lessonTime in currentLessonTimes track by $index" colspan="2" ng-class="{dividerBorder: currentLessonTimes[$index + 1].endOfDay}">
+              <div> {{lessonTime.time | hoisTimeMin}} </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="fixed-cell"></td>
+            <td ng-repeat="lessonTime in currentLessonTimes track by $index" colspan="1" ng-class="{dividerBorder: lessonTime.endOfDay}">
+              <span>&nbsp;</span>
+            </td>
+          </tr>
+          <tr md-row ng-class="'even'" ng-if="plan.showLessonTimes">
+            <td class="fixed-cell">{{'timetable.timetablePlan.lessonTimes' | translate}}</td>
+            <td ng-repeat="lessonTime in lessonTimeLegend" colspan="{{lessonTime.colspan}}" class="higher-timetable-lesson-time" ng-class="{dividerBorder: lessonTime.endOfDay}">
+              <div layout="center">{{lessonTime.lessonNr}}</div>
+            </td>
+          </tr>
+          <tr md-row ng-repeat="group in plan.currentStudentGroups | orderBy: orderBySelectedGroup" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td>{{group.code}}</td>
+            <td ng-if="lessonsInDay[date] > 0" ng-repeat="date in plan.datesForTimetable" colspan="{{lessonsInDay[date]}}" class="dividerBorder">
+              <div ng-repeat="lessonTime in group.currentLessons[date.getDate() + date.getMonth() + date.getFullYear()]" old-event-id="{{lessonTime.id}}"
+                ng-class="{'timetable-higher-drop' : (plan.selectedGroup === group.dropdownValue && plan.repeatCode && plan.lessonAmount), 'timetable-higher-drag' : lessonTime.id ? true : false, 'timetable-higher' : true}"
+                drop-fn="saveEventAfterClashCheck(data)" ng-click="changeEvent(lessonTime)" ng-attr-ois-higher-drop="{{plan.selectedGroup === group.dropdownValue}}"
+                ng-attr-ois-drag="{{(plan.selectedGroup === group.dropdownValue) && lessonTime.id !== undefined}}" id="{{lessonTime.id}}-{{group.id}}" ng-style="lessonTimeStyle(lessonTime)"
+                title="{{currentLanguageNameField(lessonTime.subject)}}/{{currentLanguageNameField(getCapacityType(lessonTime.capacityType))}}&#10;{{lessonTime.teacherNames.join(', ')}}&#10;{{lessonTime.subgroupCodes.join(', ')}}"
+                journal-id="{{lessonTime.subjectStudyPeriod}}" capacity-type="{{lessonTime.capacityType}}" style="word-break: break-all;height: 100%;">
+                <span ng-if="lessonTime.id">
+                  {{lessonTime.subjectCode}}/{{getCapacityTypeValue(lessonTime.capacityType)}}
+                </span>
+                <br>
+                <span ng-if="lessonTime.id && lessonTime.rooms && lessonTime.rooms.length > 0">{{getRoomCodes(lessonTime.rooms)}}</span>
+                <span ng-if="lessonTime.id && (!lessonTime.rooms || lessonTime.rooms.length === 0)" ng-style="boldAndRed(lessonTime.rooms)">?</span>
+                <span ng-if="!lessonTime.id">&nbsp;</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+
+    <md-button ng-href="#/timetable/{{timetableId}}/view" class="md-raised">{{'main.button.back' | translate}}</md-button>
+
+  </div>
+</div>

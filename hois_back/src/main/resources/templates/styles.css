@@ -1,0 +1,98 @@
+@page {
+    size: A4;
+    margin: 70px;
+}
+
+html {
+    font-size: 10px;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.font14 {
+	font-size: 14pt;
+}
+
+.font12 td {
+	font-size: 12pt;
+}
+
+.header {
+	margin-bottom: 18px;
+	text-align: center;
+}
+
+.reporttable {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.reporttable td {
+    border: solid black thin;
+    padding: 3px;
+}
+
+.reportsubtable td {
+    border: none;
+}
+
+.reporttableheader {
+    font-weight: bold;
+    text-align: center;
+}
+
+.reporttablesubheader {
+    font-weight: bold;
+    text-align: left;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+li > ul{
+    padding-left: 2em;
+}
+
+.long-text {
+	max-width: 700px;
+	white-space: pre-wrap;
+}
+.align-top {
+	vertical-align: top;
+}
+.state-curriculum-module-column1 {
+	width: 25%;
+}
+.state-curriculum-module-column2 {
+	width: 25%;
+}
+.state-curriculum-module-column3 {
+	width: 50%;
+}
+.center {
+	text-align: center;
+}
+.state-curriculum-very-long-text {
+	white-space: pre-wrap;
+	max-width: 950px;
+}
+
+.personaldatatable {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.protocol-header-small {
+    text-align: center;
+    font-size: 8px;
+}
+
+.protocol-header-big {
+    text-align: center;
+    font-size: 10px;
+}
+

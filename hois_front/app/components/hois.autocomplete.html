@@ -1,0 +1,19 @@
+<md-autocomplete flex
+                 md-min-length="mdMinLength"
+                 md-no-cache="true"
+                 md-selected-item="ngHolder"
+                 md-selected-item-change="selectedItemChange()"
+                 md-search-text="ngSearchText"
+                 md-items="item in haSearch(ngSearchText)"
+                 md-item-text="getChipText(item)"
+                 md-require-match
+                 ng-required="required"
+                 ng-disabled="disabled"
+                 md-floating-label="{{label | translate}}">
+  <md-item-template>  
+    <span md-highlight-text="ngSearchText" md-highlight-flags="i" ng-style="{'color': warningParam && item['{{warningParam}}'] ? 'red' : 'inherit'}">{{display ? item[display] : $root.currentLanguageNameField(item)}}</span>
+  </md-item-template>
+  <md-not-found>
+      {{'main.messages.error.notFound' | translate}}
+  </md-not-found>
+</md-autocomplete>

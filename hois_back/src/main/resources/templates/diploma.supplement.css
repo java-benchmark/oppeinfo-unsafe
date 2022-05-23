@@ -1,0 +1,160 @@
+@page {
+    size: A4;
+    margin: 60pt;
+    @bottom-right {
+        content: element(footer);
+    }
+}
+
+html {
+    font-family: Garamond;
+    font-size: 11pt;
+}
+.page-break-avoid, table tr {
+    page-break-inside: avoid;
+}
+.page-break-after-avoid {
+    page-break-after: avoid;
+}
+.bold {
+    font-weight: bold;
+}
+.italic {
+    font-style: italic;
+}
+.underline {
+    text-decoration: underline;
+}
+.label {
+    font-weight: bold;
+}
+.center {
+    text-align: center;
+}
+.font-size-9 {
+    font-size: 9pt;
+}
+
+#footer {
+    position: running(footer);
+    text-align: right;
+}
+#pagenumber:before {
+    content: counter(page);
+}
+#pagecount:before {
+    content: counter(pages);
+}
+
+.padding-top {
+    height: 80pt;
+}
+.padding-top-en {
+    height: 70pt;
+}
+.school-name {
+	font-size: 18pt;
+    font-weight: bold;
+	text-align: center;
+	text-transform: uppercase;
+	width: 100%;
+}
+.school-name-en {
+	font-size: 18pt;
+    font-weight: bold;
+	text-align: center;
+	width: 100%;
+}
+div.diploma-nr {
+    font-size: 12pt;
+    font-weight: bold;
+	margin-top: 90pt;
+	text-align: center;
+	width: 100%;
+}
+div.diploma-nr-en {
+    font-size: 12pt;
+    font-weight: bold;
+	margin-top: 60pt;
+	text-align: center;
+	width: 100%;
+}
+.supplement-description {
+	border: 1px solid black;
+	margin: 10pt;
+	margin-bottom: 20pt;
+	padding: 2pt 5pt;
+	width: 95%;
+}
+h1, h2, h3 {
+    font-size: 12pt;
+    font-weight: bold;
+	margin-top: 10pt;
+	page-break-after: avoid;
+}
+table.general-info {
+	width: 100%;
+}
+table.general-info td {
+    vertical-align: top;
+}
+table.general-info td:first-child {
+	width: 200pt;
+}
+table.general-info td:last-child {
+	font-weight: bold;
+}
+.study-results {
+    width: 100%;
+}
+table.study-results th {
+    text-align: center;
+    vertical-align: top;
+}
+table.study-results th:last-child {
+    text-align: left;
+}
+table.study-results td {
+    vertical-align: top;
+}
+.study-results-credits {
+    text-align: center;
+    width: 40pt;
+}
+.study-results-date {
+    text-align: center;
+}
+.study-results-grade {
+    text-align: center;
+    width: 80pt;
+}
+.evaluation-description, .evaluation-description th, .evaluation-description td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-weight: normal;
+    padding: 2pt 5pt;
+}
+.margin-top {
+    margin-top: 10pt;
+}
+table.confirmation-info {
+    margin-bottom: 80pt;
+	width: 100%;
+}
+table.confirmation-info td {
+	font-weight: bold;
+    vertical-align: top;
+}
+table.confirmation-info td:first-child {
+    font-weight: normal;
+	width: 110pt;
+}
+table.higher-desc {
+    page-break-inside: avoid;
+}
+table.higher-desc td {
+    border: 1px solid black;
+    padding: 2pt;
+    text-align: center;
+    vertical-align: top;
+}

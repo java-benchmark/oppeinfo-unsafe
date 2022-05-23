@@ -1,0 +1,44 @@
+<div ng-include="'practiceEnterprise/practice.enterprise.navbar.html'"></div>
+
+<div layout-padding>
+    <div flex>
+        <md-table-container>
+            <table md-table md-progress="tabledata.$promise" class="secondary-table">
+                <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+                <tr md-row>
+                    <th md-column md-order-by="esic.isced_class_code">{{'enterprise.iscedTab.iscedClass' | translate}}</th>
+                    <th md-column>{{'enterprise.iscedTab.places' | translate}}</th>
+                    <th md-column>{{'enterprise.iscedTab.addInfo' | translate}}</th>
+                    <th md-column></th>
+                </tr>
+                </thead>
+                <tbody md-body>
+                <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+                    <td md-cell>{{row.iscedClass ? currentLanguageNameField(row.iscedClass) : '-'}}{{row.iscedValue ? '(' + row.iscedValue + ')' : ''}}
+                        <span ng-if="!row.exists">
+                            <md-icon md-colors="{color: 'default-warn'}" md-font-set="material-icons">warning</md-icon>
+                            <span md-colors="{color: 'default-warn'}">{{'enterprise.iscedTab.warning' | translate}}</span>
+                        </span>
+                    </td>
+                    <td md-cell>{{row.places ? row.places : '-'}}</td>
+                    <td md-cell>{{row.addInfo ? row.addInfo : '-'}}</td>
+                    <td md-cell>
+                    <md-button md-no-ink class="md-primary change-button" 
+                        ng-click="addNewStudentGroup(row)">{{'main.button.change' | translate}}</md-button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" 
+    md-total="{{tabledata.totalElements}}"
+    md-on-paginate="loadData" 
+    md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}"
+    md-page-select>
+    </md-table-pagination>
+    </div>
+</div>
+<div ng-if="auth.isAdmin() || auth.isLeadingTeacher()" layout="row" layout-xs="column">
+    <md-button class="md-raised" ng-click="back('#/practice/enterprise')">{{'main.button.back' | translate}}</md-button>
+    <md-button class="md-raised" ng-click="addNewStudentGroup()">{{'enterprise.iscedTab.addNew' | translate}}</md-button>
+</div>

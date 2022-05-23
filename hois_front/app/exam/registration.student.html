@@ -1,0 +1,61 @@
+<div layout-padding>
+  <div flex>
+    <div layout="row" layout-sm="column" layout-xs="column">
+      <md-input-container flex="45" flex-sm="100" flex-xs="100">
+        <label>{{'exam.studyPeriod' | translate}}</label>
+        <hois-select ng-model="criteria.studyPeriod" ng-change="studyPeriodChanged()"
+          values="formState.studyPeriods" sorted-query="true"></hois-select>
+      </md-input-container>
+    </div>
+
+    <div>&nbsp;</div>
+
+    <md-table-container>
+      <table md-table md-progress="tabledata.$promise">
+        <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+          <tr md-row>
+            <th md-column md-order-by="s.code,{{currentLanguage()==='en' ? 's.nameEn' : 's.nameEt'}}">{{'exam.subject' | translate}}</th>
+            <th md-column>{{'exam.teacher' | translate}}</th>
+            <th md-column md-order-by="sm.{{currentLanguageNameField()}}">{{'exam.assessment' | translate}}</th>
+            <th md-column md-order-by="tp.{{currentLanguageNameField()}}">{{'exam.type' | translate}}</th>
+            <th md-column md-order-by="te.start">{{'exam.when' | translate}}</th>
+            <th md-column>{{'exam.room' | translate}}</th>
+            <th md-column md-order-by="deadline">{{'exam.deadline' | translate}}</th>
+            <th md-column>{{'exam.freePlaces' | translate}}</th>
+            <th md-column>{{'exam.addInfo' | translate}}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell>{{currentLanguageNameField(row.subject)}}</td>
+            <td md-cell>
+              <div ng-repeat="it in row.teacherNames">
+                {{it}}
+              </div>
+            </td>
+            <td md-cell>{{currentLanguageNameField(row.assessment)}}</td>
+            <td md-cell>{{currentLanguageNameField(row.type)}}</td>
+            <td md-cell>{{row.start | hoisDateTimeMin}}</td>
+            <td md-cell>
+              <div ng-repeat="it in row.rooms">
+                {{it}}
+              </div>
+            </td>
+            <td md-cell>{{row.deadline | hoisDateTimeMin}}</td>
+            <td md-cell>{{row.freePlaces}}</td>
+            <td md-cell>{{row.addInfo}}</td>
+            <td md-cell>
+              <md-button ng-if="!row.registered && row.canChange && (row.freePlaces === null || row.freePlaces > 0)" md-no-ink class="md-primary change-button" ng-click="register(row)">{{'exam.register' | translate}}</md-button>
+              <md-button ng-if="row.registered && row.canChange && row.protocol === null" md-no-ink class="md-primary change-button" ng-click="unregister(row)">{{'exam.unregister' | translate}}</md-button>
+              <span ng-if="row.registered && row.protocol !== null">{{'exam.connectedProtocol' | translate}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]"
+                         md-page="criteria.page" md-total="{{tabledata.totalElements}}" md-on-paginate="loadData"
+                         md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}" md-page-select></md-table-pagination>
+  </div>
+</div>

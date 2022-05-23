@@ -1,0 +1,176 @@
+<div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+  <div flex>
+    <form name="directiveForm" class="nomargin">
+      <div layout="column">
+        <md-input-container class="md-block">
+          <label class="textInput">{{'directive.type' | translate}}</label>
+          <hois-classifier-select ng-model="record.type" name="type" ng-change="directiveTypeChanged()" ng-disabled="formState.state !== 'CHOOSETYPE'"
+            model-value-attr="code" main-classifier-code="KASKKIRI" filter-values="formState.excludedTypes" only-valid
+            required autofocus></hois-classifier-select>
+        </md-input-container>
+      </div>
+
+      <div flex ng-if="(record.type === 'KASKKIRI_LOPET' || record.type === 'KASKKIRI_KYLALIS' || record.type === 'KASKKIRI_DUPLIKAAT' || record.type === 'KASKKIRI_EKSTERN') && formState.school.higher && formState.school.vocational">
+        <md-input-container class="md-block" ng-init="(record.isHigher = record.isHigher || false) || directiveTypeChanged()">
+          <md-radio-group layout-gt-sm="row" ng-model="record.isHigher" ng-change="directiveTypeChanged()" required name="isHigher" ng-disabled="formState.state !== 'CHOOSETYPE'">
+            <md-radio-button ng-value="false">{{'directive.vocational' | translate}}</md-radio-button>
+            <md-radio-button ng-value="true">{{'directive.higher' | translate}}</md-radio-button>
+          </md-radio-group>
+          <div ng-messages="directiveForm.isHigher.$error" ng-if="directiveForm.$submitted">
+            <div class="invalid" ng-message="required">{{'main.required' | translate}}</div>
+          </div>
+        </md-input-container>
+      </div>
+
+      <div flex ng-if="record.type === 'KASKKIRI_STIPTOET' || record.type === 'KASKKIRI_STIPTOETL'">
+        <md-input-container class="md-block">
+          <label class="textInput">{{'directive.scholarshipType' | translate}}</label>
+          <hois-select ng-model="record.scholarshipType" values="formState.scholarshipTypes" value-property="code"
+            ng-change="scholarshipTypeChanged()" ng-disabled="formState.state !== 'CHOOSETYPE'" required
+            sorted-query="true" order-by-property="sorted"></hois-select>
+        </md-input-container>
+      </div>
+
+      <div flex ng-if="formState.state === 'CHOOSETYPE' && (withoutInitialSelection.indexOf(record.type) === -1
+        && (record.type !== 'KASKKIRI_STIPTOET' || !record.scholarshipType || record.scholarshipType.indexOf('EHIS_STIPENDIUM_') === -1))">
+        <div>&nbsp;</div>
+        <md-table-container>
+          <table md-table md-row-select multiple ng-model="formState.selectedStudents">
+            <thead md-head>
+              <tr md-row>
+                <th md-column>{{'directive.student.fullname' | translate}}</th>
+                <th md-column>{{'directive.student.idcode' | translate}}</th>
+                <th md-column ng-if="record.type === 'KASKKIRI_TUGI'">{{'directive.student.application' | translate}}</th>
+                <th md-column>{{'directive.student.curriculum' | translate}}</th>
+                <th md-column>{{'directive.student.studentGroup' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr md-row md-select="row" md-select-id="id" ng-repeat="row in formState.students" ng-class-odd="'odd'" ng-class-even="'even'">
+                <td md-cell>
+                  <md-button md-no-ink class="md-primary change-button" ng-href="#/students/{{::row.id}}/main">{{::row.fullname}}</md-button>
+                </td>
+                <td md-cell>{{::row.idcode}}</td>
+                <td md-cell ng-if="record.type === 'KASKKIRI_TUGI'">
+                  <md-input-container style="width: 100%;" ng-if="row.applications.length > 1">
+                    <md-select ng-model="formState.studentApplicationRelationship[row.id]" ng-required="!!formState.selectedStudentIds[row.id]">
+                      <md-option ng-value="opt.id" ng-repeat="opt in row.applications">
+                        {{opt.confirmed ? "(" + (opt.confirmed | hoisDateTime) + ") " + opt.description : opt.description}}
+                      </md-option>
+                    </md-select>
+                  </md-input-container>
+                  <span ng-if="row.applications.length === 1" ng-init="formState.studentApplicationRelationship[row.id] = row.applications[0].id">
+                    {{row.applications[0].confirmed ? "(" + (row.applications[0].confirmed | hoisDateTime) + ") " + row.applications[0].description : row.applications[0].description}}
+                  </span>
+                </td>
+                <td md-cell>{{currentLanguageNameField(row.curriculumVersion)}}</td>
+                <td md-cell>{{::row.studentGroup}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+      </div>
+
+      <div layout="row" ng-if="formState.state === 'CHOOSETYPE' && record.type === 'KASKKIRI_IMMATV'">
+        <md-input-container flex="45" flex-sm="100" flex-xs="100">
+          <label class="textInput">{{'directive.student.curriculumVersion' | translate}}</label>
+          <hois-select ng-model="formState.curriculumVersion" multiple values="formState.saisCurriculumVersions"></hois-select>
+        </md-input-container>
+
+        <md-input-container flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+          <label class="textInput">{{'directive.student.studyLevel' | translate}}</label>
+          <hois-select ng-model="formState.studyLevel" multiple type="saisCurriculumClassifiers" value-property="code"></hois-select>
+        </md-input-container>
+      </div>
+
+      <div layout="row" ng-if="formState.state === 'CHOOSETYPE'">
+        <md-button class="md-raised" ng-click="addDirective()" ng-if="formState.state === 'CHOOSETYPE' && formState.students">{{'directive.addToDirective' | translate}}</md-button>
+        <md-button ng-click="back('#/directives')" class="md-raised">{{'main.button.back' | translate}}</md-button>
+      </div>
+
+      <div flex-xs="0" flex-gt-xs="0" flex-gt-sm="50"></div>
+
+      <div flex ng-if="formState.state === 'EDIT'">
+        <div class="form-readonly top-margin" ng-if="record.type === 'KASKKIRI_TYHIST'">
+          <md-input-container class="md-block">
+            <label class="textInput">{{'directive.canceledDirective' | translate}}</label>
+            <hois-value value="formState.canceledDirective.nameEt" href-value="'#/directives/' + formState.canceledDirective.id + '/view'"></hois-value>
+          </md-input-container>
+        </div>
+
+        <md-input-container class="md-block">
+          <label class="textInput">{{'directive.headline' | translate}}</label>
+          <input type="text" ng-model="record.headline" name="headline" required md-maxlength="500">
+        </md-input-container>
+
+        <div class="form-readonly top-margin">
+          <md-input-container class="md-block">
+            <label class="textInput">{{'directive.inserted' | translate}}</label>
+            <hois-value value="record.inserted | hoisDate"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div class="form-readonly top-margin">
+          <md-input-container class="md-block">
+            <label class="textInput">{{'directive.insertedBy' | translate}}</label>
+            <hois-value value="record.insertedBy"></hois-value>
+          </md-input-container>
+        </div>
+        
+        <md-input-container class="md-block">
+          <label class="textInput">{{'directive.addInfo' | translate}}</label>
+          <textarea ng-model="record.addInfo" md-maxlength="4000" max-rows="10"></textarea>
+        </md-input-container>
+
+        <md-input-container class="md-block">
+          <label class="textInput">{{'directive.directiveCoordinator' | translate}}&nbsp;*</label>
+          <hois-select ng-model="record.directiveCoordinator" name="directiveCoordinator" type="directivecoordinator" criteria="{isDirective: true}"></hois-select>
+        </md-input-container>
+
+        <md-input-container class="md-block" ng-if="record.type === 'KASKKIRI_TYHIST'">
+          <label class="textInput">{{'directive.cancelType' | translate}}</label>
+          <hois-classifier-select required name="cancelType" ng-model="record.cancelType" ng-change="cancelTypeChanged()" 
+          filter-values="[formState.changedStudents.length > 0 ? 'KASKKIRI_TYHISTAMISE_VIIS_T' : (record.students.length == 1 ? 'KASKKIRI_TYHISTAMISE_VIIS_O' : undefined)]" 
+          main-classifier-code="KASKKIRI_TYHISTAMISE_VIIS" model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+  
+        <div>&nbsp;</div>
+        <md-table-container>
+          <fieldset>
+            <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'directive.studentList' | translate}}</legend>
+            <md-button class="md-raised" ng-click="addStudents()" ng-if="record.type !== 'KASKKIRI_TYHIST' && record.type !== 'KASKKIRI_IMMATV'">{{'directive.addStudents' | translate}}</md-button>
+            <md-button class="md-raised" ng-click="pickStudents({type: record.type, directive: id}, record.students, true)" ng-if="record.type === 'KASKKIRI_EKSTERN'">{{'directive.pickStudents' | translate}}</md-button>
+            <div class="template" ng-include="formState.templateUrl" flex></div>
+          </fieldset>
+        </md-table-container>
+
+        <div layout="row">
+          <md-button class="md-raised md-primary" ng-click="update()">{{'main.button.save' | translate}}</md-button>
+          <md-button class="md-raised" ng-if="record.id" ng-click="sendToConfirm(true)">{{'directive.sendToConfirm' | translate}}</md-button>
+          <md-button class="md-raised" ng-if="record.id && isAuthorized('ROLE_OIGUS_K_TEEMAOIGUS_KASKKIRI_EKISETA')" ng-click="sendToConfirm(false)">{{'directive.sendToConfirmWithoutEkis' | translate}}</md-button>
+          <md-button class="md-raised" ng-if="record.id" ng-click="delete()">{{'main.button.delete' | translate}}</md-button>
+          <md-button ng-click="back('#/directives', directiveForm)" class="md-raised">{{'main.button.back' | translate}}</md-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Overrides default user-agent style for error message */
+  div.template div.invalid p {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  div.template tr.hois-table-row-detail,
+  div.template tr.hois-table-row-between {
+    height: auto !important;
+  }
+  div.template tr.hois-table-row-detail div.invalid,
+  div.template tr.hois-table-row-between div.invalid {
+    margin-top: 0.25em;
+    margin-bottom: 0.75em;
+  }
+</style>

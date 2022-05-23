@@ -1,0 +1,37 @@
+<hois-collapsable class="hois-collapse2" expanded="true" ng-if="declaration.status">
+    <hois-collapsable-header>
+        <span>{{'home.student.declaredSubjects' | translate}} ({{currentLanguageNameField(declaration.studyPeriod)}})</span>
+    </hois-collapsable-header>
+    <md-table-container>
+        <table md-table>
+            <thead md-head>
+                <tr md-row>
+                    <th md-column>{{'declaration.subject' | translate}}</th>
+                    <th md-column>{{'declaration.teacher' | translate}}</th>
+                    <th md-column>{{'studyMaterial.label' | translate}}</th>
+                </tr>
+            </thead>
+            <tbody md-body>
+                <tr md-row ng-repeat="subject in declaration.subjects | orderBy: 'subject.' + currentLanguageNameField()" ng-class-odd="'odd'" ng-class-even="'even'" ng-init="$last && pageLoadingHandler.setFinish('declaration')">
+                    <td md-cell>
+                        <a href="#/subject/{{subject.subject.id}}">
+                            {{currentLanguageNameField(subject.subject)}} ({{subject.subject.code}})
+                            <span ng-show="subject.isDeclaredRepeatedly">&nbsp;*</span>
+                        </a>
+                    </td>
+                    <td md-cell>
+                      <table>
+                        <tr ng-repeat="program in subject.programs | orderBy: 'teacherName'">
+                          <td>{{program.teacherName}}
+                            <span ng-if="program.id !== -1 && program.publicStudent">(<a href="#/subjectProgram/public/{{program.id}}/view">{{'declaration.seeProgram' | translate}}</a>)</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td md-cell><a ng-href="/#/declaration/studyMaterial/higher/{{subject.subjectStudyPeriod}}/view">{{'studyMaterial.openfolder' | translate}}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </md-table-container>
+</hois-collapsable>
+<!-- <span ng-show="pageLoadingHandler.setFinish('declaration') && false"></span> -->

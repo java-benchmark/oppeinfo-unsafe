@@ -1,0 +1,50 @@
+<md-dialog aria-label="grade add dialog" flex="30" flex-md="45" flex-sm="60" flex-xs="100">
+  <form name="studentAbsenceForm" novalidate ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2 flex>{{'absence.label' | translate}}</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-font-set="material-icons">close</md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+      <div class="md-dialog-content">
+        <div layout="row" layout-xs="column" class="form-readonly">
+          <md-input-container flex>
+            <label>{{'student.name' | translate}}</label>
+            <hois-value value="record.studentName"></hois-value>
+          </md-input-container>
+          <md-input-container flex>
+            <label>{{'student.studentGroup' | translate}}</label>
+            <hois-value value="record.studentGroup"></hois-value>
+          </md-input-container>
+        </div>
+
+        <div layout="row" layout-xs="column">
+          <md-input-container flex>
+            <label>{{'student.absence.validFrom' | translate}}</label>
+            <md-datepicker ng-model="record.validFrom" name="validFrom" md-max-date="record.validThru" required></md-datepicker>
+          </md-input-container>
+          <md-input-container flex>
+            <label>{{'student.absence.validThru' | translate}}</label>
+            <md-datepicker ng-model="record.validThru" name="validThru" md-min-date="record.validFrom"></md-datepicker>
+          </md-input-container>
+        </div>
+
+        <md-input-container class="md-block">
+          <label>{{'student.absence.cause' | translate}}</label>
+          <textarea ng-model="record.cause" name="cause" required md-maxlength="1000"></textarea>
+        </md-input-container>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="start center">
+      <md-button ng-click="update()" class="md-raised md-primary">{{'main.button.save' | translate}}</md-button>
+      <md-button ng-click="delete()" ng-if="record.id" class="md-raised">{{'main.button.delete' | translate}}</md-button>
+      <md-button ng-click="cancel()" class="md-raised">{{'main.button.close' | translate}}</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

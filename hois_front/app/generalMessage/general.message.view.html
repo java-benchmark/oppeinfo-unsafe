@@ -1,0 +1,40 @@
+<div layout="column" layout-padding class="form-readonly">
+  <div>
+    <form name="generalMessageForm">
+      <md-input-container class="md-block">
+        <label class="textInput">{{'generalmessage.title' | translate}}</label>
+        <hois-value value="record.title"></hois-value>
+      </md-input-container>
+
+      <md-input-container class="md-block">
+        <label class="textInput">{{'generalmessage.content' | translate}}</label>
+        <hois-value value="record.content"></hois-value>
+      </md-input-container>
+
+      <div layout="row" flex="100">
+        <md-input-container flex="20">
+          <label>{{'generalmessage.validFrom' | translate}}</label>
+          <hois-value value="record.validFrom | hoisDate"></hois-value>
+        </md-input-container>
+        <md-input-container flex="20" flex-offset="5">
+          <label>{{'generalmessage.validThru' | translate}}</label>
+          <hois-value value="record.validThru | hoisDate"></hois-value>
+        </md-input-container>
+      </div>
+
+      <div ng-if="!auth.isMainAdmin()">&nbsp;</div>
+      <fieldset tabindex="1" ng-if="!auth.isMainAdmin()">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'generalmessage.targets' | translate}} *</legend>
+
+        <div layout="column" class="common-label" ng-repeat="role in record.targets">
+          <span>
+            <hois-classifier-value ng-model="role" main-classifier-code="ROLL"></hois-classifier-value>
+          </span>
+        </div>
+      </fieldset>
+
+      <md-button class="md-raised md-primary" ng-if="canEdit" ng-href="#/generalmessages/{{record.id}}/edit?_noback">{{'main.button.change' | translate}}</md-button>
+      <md-button ng-href="#/generalmessages" class="md-raised">{{'main.button.back' | translate}}</md-button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<style>
+    md-checkbox .md-label {
+        white-space: unset;
+    }
+    @media (max-width: 600px) {
+        md-checkbox .md-label {
+            white-space: initial;
+        }
+    }
+</style>
+<div layout="column" layout-padding>
+    <form name="subjectStudyPeriodEditForm" ng-cloak>
+        <div layout="column" class="form-readonly">
+            <div layout="row" layout-sm="column" layout-xs="column">
+                <md-input-container flex="45" flex-sm="100" flex-xs="100">
+                    <label>{{'subjectStudyPeriod.studyPeriod' | translate}}</label>
+                    <hois-select ng-model="record.studyPeriod" values="studyPeriods" disabled required></hois-select>
+                </md-input-container>
+                <hois-autocomplete flex="50" flex-sm="100" ng-model="record.subject" method="subjectsList"
+                    label="subjectStudyPeriod.nameCode" required no-paging="true" ha-attribute="id"
+                    flex-offset="5" flex-offset-xs="0" flex-offset-sm="0" disabled>
+                </hois-autocomplete>
+            </div>
+
+            <h2 ng-show="record.teachers.length > 0">{{'subjectStudyPeriod.teacher' | translate}}</h2>
+            <table md-table class="secondary-table">
+                <tbody md-body>
+                    <tr md-row ng-repeat="teacher in record.teachers" ng-class-odd="'odd'" ng-class-even="'even'">
+                        <td md-cell width="50%">{{teacher.name}}</td>
+                        <td md-cell width="50%" ng-hide="record.teachers.length === 1">
+                            <md-checkbox ng-model="teacher.isSignatory" disabled aria-label="{{'subjectStudyPeriodTeacher.isSignatory' | translate}}">
+                                {{'subjectStudyPeriodTeacher.isSignatory' | translate}}
+                            </md-checkbox>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>&nbsp;</div>
+            <div layout="row" layout-sm="column" layout-xs="column">
+                <md-input-container flex="45" flex-sm="100" flex-xs="100">
+                    <label>{{'subjectStudyPeriod.studentGroups' | translate}}</label>
+                    <hois-select ng-model="record.studentGroups" values="studentGroups" multiple disabled></hois-select>
+                </md-input-container>
+                <md-input-container flex="50" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                    <label>{{'subjectStudyPeriod.proportion' | translate}}</label>
+                    <hois-classifier-select ng-model="record.groupProportion" model-value-attr="code" main-classifier-code="PAEVIK_GRUPI_JAOTUS" required disabled></hois-classifier-select>
+                    <!--<hois-classifier-value ng-model="record.groupProportion" main-classifier-code="PAEVIK_GRUPI_JAOTUS"></hois-classifier-value>-->
+                </md-input-container>
+            </div>
+            <md-input-container>
+                <label>{{'subjectStudyPeriod.addInfo' | translate}}</label>
+                <hois-value value="record.addInfo"></hois-value>
+            </md-input-container>
+            <md-input-container>
+                <label>{{'subjectStudyPeriod.declaration' | translate}}</label>
+                <hois-classifier-value ng-model="record.declarationType" main-classifier-code="DEKLARATSIOON"></hois-classifier-value>
+            </md-input-container>
+            <div layout="row" layout-sm="column" layout-xs="column">
+                <md-input-container flex="45" flex-sm="100" flex-xs="100">
+                    <label>{{'moodle.courseId' | translate}}</label>
+                    <hois-value value="record.moodleCourseId"></hois-value>
+                </md-input-container>
+            </div>
+            <fieldset ng-if="record.subgroups.length > 0">
+                <legend md-colors="{color: 'primary-800'}" class="md-title-small">
+                    {{'subjectStudyPeriod.subgroups.label' | translate}}
+                    <span>
+                        {{record.students ? ' (' + record.students + ')' : ''}}
+                        <md-tooltip ng-if="record.students">
+                            {{'subjectStudyPeriod.subgroups.labelNumberTooltip' | translate}}
+                        </md-tooltip>
+                    </span>
+                </legend>
+                <md-content>
+                    <div layout="column">
+                        <md-table-container>
+                            <table md-table class="secondary-table">
+                                <thead md-head>
+                                    <tr md-row>
+                                        <th md-column>{{'subjectStudyPeriod.subgroups.name' | translate}}</th>
+                                        <th md-column>{{'subjectStudyPeriod.subgroups.teacher' | translate}}</th>
+                                        <th md-column>{{'subjectStudyPeriod.subgroups.places' | translate}}</th>
+                                        <th md-column>{{'subjectStudyPeriod.subgroups.declared' | translate}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row ng-repeat="subgroup in record.subgroups" ng-class-odd="'odd'" ng-class-even="'even'">
+                                        <td md-cell>
+                                            <span>{{subgroup.code}}</span>
+                                        </td>
+                                        <td md-cell>
+                                            <span>{{currentLanguageNameField(subgroup.teacher)}}</span>
+                                        </td>
+                                        <td md-cell>
+                                            <span>{{subgroup.places}}</span>
+                                        </td>
+                                        <td md-cell>{{subgroup.declared ? subgroup.declared : '-'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                    </div>
+                </md-content>
+            </fieldset>
+        </div>
+        <div ng-if="record.subgroups.length > 0">&nbsp;</div>
+        <div layout="row">
+            <md-button class="md-primary md-raised" ng-if="record.canUpdate"
+                ng-href="#/subjectStudyPeriod/{{::record.id}}/edit">{{'main.button.change' | translate}}</md-button>
+            <md-button class="md-raised" ng-click="back('#/subjectStudyPeriods')">{{'main.button.back' | translate}}</md-button>
+        </div>
+    </form>
+</div>

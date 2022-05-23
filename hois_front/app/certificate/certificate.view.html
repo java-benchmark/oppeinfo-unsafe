@@ -1,0 +1,72 @@
+<div layout-padding ng-cloak class="form-readonly">
+  <div layout="column">
+      <md-input-container>
+          <label>{{'certificate.type' | translate}}</label>
+          <hois-classifier-value ng-model="record.type" main-classifier-code="TOEND_LIIK"></hois-classifier-value>
+      </md-input-container>
+
+      <md-input-container ng-if="record.status === 'TOEND_STAATUS_V' || (auth.school.withoutEkis && record.certificateNr)">
+          <label>{{'certificate.nr' | translate}}</label>
+          <hois-value value="record.certificateNr"></hois-value>
+      </md-input-container>
+
+      <div ng-show="!isOtherCertificate() && !auth.isStudent()" layout="column">
+        <md-input-container>
+            <label>{{'certificate.student' | translate}}</label>
+            <hois-value value="student.nameEt" href-value="'#/students/' + student.id + '/main'"></hois-value>
+        </md-input-container>
+      </div>
+
+      <div ng-if="isOtherCertificate() && !auth.isStudent()">
+          <md-input-container class="md-block">
+              <label>{{'certificate.otherIdcode' | translate}}</label>
+              <hois-value value="record.otherIdcode"></hois-value>
+          </md-input-container>
+          <md-input-container class="md-block">
+              <label>{{'certificate.otherName' | translate}}</label>
+              <hois-value ng-if="student.id" value="record.otherName" href-value="'#/students/' + student.id + '/main'"></hois-value>
+              <hois-value ng-if="!student.id" value="record.otherName"></hois-value>
+          </md-input-container>
+      </div>
+      <md-input-container>
+          <label>{{'certificate.headline' | translate}}</label>
+          <hois-value value="record.headline"></hois-value>
+      </md-input-container>
+      <md-input-container>
+          <label>{{'certificate.whom' | translate}}</label>
+          <hois-value value="record.whom"></hois-value>
+      </md-input-container>
+      <md-input-container ng-if="!auth.isStudent()">
+          <label>{{'certificate.signatory' | translate}}</label>
+          <hois-value value="record.signatoryName"></hois-value>
+      </md-input-container>
+      <md-input-container>
+        <label>{{'certificate.status' | translate}}</label>
+        <hois-classifier-value ng-model="record.status" main-classifier-code="TOEND_STAATUS"></hois-classifier-value>
+      </md-input-container>
+      <md-input-container>
+        <label>{{'certificate.inserted' | translate}}</label>
+        <hois-value value="record.inserted | hoisDate"></hois-value>
+      </md-input-container>
+      <md-input-container ng-if="contentEditable()">
+          <label>{{'certificate.content' | translate}}</label>
+          <hois-value value="record.content"></hois-value>
+      </md-input-container>
+      <div ng-if="!contentEditable()">
+        <label class="common-label">{{'certificate.content' | translate}}</label>
+        <md-table-container>
+            <div id="content" class="md-body-1"></div>
+        </md-table-container>
+      </div>
+  </div>
+  <div layout="row">
+      <md-button class="md-raised md-primary" ng-if="record.canBeChanged && isAuthorized('ROLE_OIGUS_M_TEEMAOIGUS_TOEND')" 
+        ng-href="/#/certificate/{{::record.id}}/edit">{{'main.button.change' | translate}}</md-button>
+      <md-button class="md-raised md-default" ng-if="auth.isStudent() && record.status === 'TOEND_STAATUS_T' && !auth.school.withoutEkis" ng-click="order()">{{'certificate.orderAgain' | translate}}</md-button>
+      <md-button class="md-raised md-default" ng-if="record.id && auth.isAdmin()" ng-href="{{printUrl()}}" target="_blank">{{'main.button.print' | translate}}</md-button>
+      <md-button class="md-raised md-default" ng-if="record.id && auth.isStudent() && record.status === 'TOEND_STAATUS_T'" ng-click="delete()">{{'main.button.delete' | translate}}</md-button>
+      <md-button class="md-raised md-default" ng-click="back('#/certificate')">{{'main.button.back' | translate}}</md-button>
+      <md-button class="md-raised md-default" ng-if="record.canViewFromEkis"
+       ng-href="{{auth.isStudent() ? record.wdUrl : getCertificateUrl(record.wdId)}}" target="_blank">{{(auth.isStudent() ? 'certificate.downloadFromEkis' : 'certificate.viewFromEkis') | translate}}</md-button>
+  </div>
+</div>

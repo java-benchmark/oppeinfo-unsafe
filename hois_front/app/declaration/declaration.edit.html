@@ -1,0 +1,260 @@
+<style>
+  .secondary-table .md-cell {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  md-select{ 
+    background: #F5F5F5;
+  }
+</style>
+<div ng-cloak ng-include="'declaration/declaration.navbar.html'"></div>
+
+<div class="ois-form-layout-padding">
+  <fieldset tabindex="0">
+    <legend md-colors="{color: 'primary-800'}" class="md-title-small period">
+      {{currentLanguageNameField(declaration.studyPeriod)}}
+      <span ng-if="formState.isDeclarationPeriod && formState.declarationPeriodStart && formState.declarationPeriodEnd">
+        ({{'declaration.declarationPeriod' | translate: {from: (formState.declarationPeriodStart | hoisDateTimeMin),
+           thru: (formState.declarationPeriodEnd | hoisDateTimeMin)} }})
+      </span>
+    </legend>
+    <br hide-gt-xs ng-if="formState.isDeclarationPeriod && formState.declarationPeriodStart && formState.declarationPeriodEnd">
+    <div class="ois-form-layout-padding form-readonly" layout="column">
+      <div layout="row" layout-sm="column" layout-xs="column" ng-show="auth.isAdmin()">
+        <md-input-container flex="25" flex-sm="100" flex-xs="100">
+            <label>{{'declaration.student' | translate}}</label>
+            <hois-value value="declaration.student.fullname"></hois-value>
+        </md-input-container>
+      </div>
+      <div layout="row" layout-sm="column" layout-xs="column">
+        <md-input-container flex="25" flex-sm="100" flex-xs="100">
+            <label>{{'declaration.studyPeriod' | translate}}</label>
+            <hois-value value="currentLanguageNameField(declaration.studyPeriod)"></hois-value>
+        </md-input-container>
+        <md-input-container flex="25" flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5" ng-if="!isGuestStudent">
+            <label>{{'declaration.curriculumVersion' | translate}}</label>
+            <hois-value value="currentLanguageNameField(declaration.student.curriculumVersion)"></hois-value>
+        </md-input-container>
+        <md-input-container flex="25" flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5" ng-if="!isGuestStudent">
+            <label>{{'declaration.course' | translate}}</label>
+            <hois-value value="declaration.course.toString()"></hois-value>
+        </md-input-container>
+        <md-input-container flex="25" flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+            <label>{{'declaration.studentGroup' | translate}}</label>
+            <hois-value value="currentLanguageNameField(declaration.student.studentGroup)"></hois-value>
+        </md-input-container>
+      </div>
+      <div layout="row" layout-sm="column" layout-xs="column">
+        <md-input-container flex="25" flex-sm="100" flex-xs="100">
+            <label>{{'declaration.status' | translate}}</label>
+            <hois-classifier-value ng-model="declaration.status" main-classifier-code="OPINGUKAVA_STAATUS"></hois-classifier-value>
+        </md-input-container>
+        <md-input-container flex="25" flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+            <label>{{'declaration.inserted' | translate}}</label>
+            <hois-value value="declaration.inserted | hoisDateTime"></hois-value>
+        </md-input-container>
+        <md-input-container flex="25" flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+            <label>{{'declaration.confirmDate' | translate}}</label>
+            <hois-value value="declaration.confirmDate | hoisDate"></hois-value>
+        </md-input-container>
+        <md-input-container flex="25" flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+            <label>{{'declaration.confirmer' | translate}}</label>
+            <hois-value value="declaration.confirmer"></hois-value>
+        </md-input-container>
+      </div>
+      <div ng-show="declaration.canBeChanged" layout="row" layout-xs="column">
+        <md-button ng-if="hasCurriculum" class="md-raised" ng-click="openAddCurriculumSubject()">{{'declaration.addCurriculumSubject' | translate}}</md-button>
+        <md-button class="md-raised" ng-click="openAddExtraCurriculumSubject()">
+      {{(!hasCurriculum ? 'declaration.addSubject' : 'declaration.addExtraCurriculumSubject') | translate}}</md-button>
+      </div>
+      <div>&nbsp;</div>
+
+      <fieldset ng-show="addCurriculumSubjectForm">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'declaration.addingCurriculumSubject' | translate}}</legend>
+        <span ng-if="tabledata.content.length === 0">
+          {{'declaration.noSuitableCurriculumSubjects' | translate}}
+        </span>
+        <span ng-if="tabledata.content.length > 0">
+          <md-table-container>
+            <table md-table md-progress="tabledata.$promise" class="secondary-table">
+              <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+                <tr md-row>
+                  <th md-column md-order-by="{{'cvhm.' + currentLanguageNameField()}}">{{'declaration.module' | translate}}</th>
+                  <th md-column md-order-by="{{'s.' + currentLanguageNameField()}}">{{'declaration.subject' | translate}}</th>
+                  <th md-column>{{'declaration.teacher' | translate}}</th>
+                  <th md-column md-order-by="s.credits">{{'declaration.eap' | translate}}</th>
+                  <th md-column md-order-by="c.value">{{'declaration.assessment' | translate}}</th>
+                  <th md-column md-order-by="cvhms.is_optional">{{'declaration.isRequired' | translate}}</th>
+                  <th md-column>{{'declaration.subgroup' | translate}}</th>
+                  <th md-column></th>
+                </tr>
+              </thead>
+              <tbody md-body>
+                <tr md-row ng-repeat="subject in tabledata.content">
+                  <td md-cell>{{currentLanguageNameField(subject.module)}}</td>
+                  <td md-cell>{{currentLanguageNameField(subject.subject)}} ({{subject.subject.code}})</td>
+                  <td md-cell>
+                    <table>
+                      <tr ng-repeat="teacher in subject.teachers | orderBy">
+                        <td>{{teacher}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td md-cell>{{subject.subject.credits}}</td>
+                  <td md-cell>{{subject.subject.assessment}}</td>
+                  <td md-cell>{{subject.isOptional ? 'main.no' : 'main.yes' | translate}}</td>
+                  <td md-cell>
+                    <md-input-container ng-if="subject.subgroups.length > 0" style="width: 100%;">
+                      <md-select ng-model="subject.subgroup" required aria-label="{{'declaration.subgroup' | translate}}">
+                        <md-option ng-value="subgroup" ng-repeat="subgroup in subject.subgroups | orderBy: 'code'">
+                          {{currentLanguageNameField(subgroup)}}
+                        </md-option>
+                      </md-select>
+                    </md-input-container>
+                  </td>
+                  <td md-cell>
+                    <a href="" ng-click="addCurriculumSubject(subject)">{{'declaration.addSubjectToDeclaration' | translate}}</a>
+                  </td>
+                </tr>
+                <tr ng-repeat-end>
+                  <td colspan="6"></td>
+                </tr>
+              </tbody>
+            </table>
+          </md-table-container>
+          <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" md-total="{{tabledata.totalElements}}"
+            md-on-paginate="loadData" md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}' }"
+            md-page-select></md-table-pagination>
+        </span>
+      </fieldset>
+
+      <fieldset ng-show="addExtraCurriculumSubjectForm">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'declaration.addingExtraCurriculumSubject' | translate}}</legend>
+        <form name="extraCurriculumForm" ng-cloak ng-submit="addExtraCurriculumSubject()">
+          <div class="ois-form-layout" layout="row" layout-xs="column" layout-sm="column" layout-margin ng-cloak>
+            <hois-autocomplete ng-model="subject" flex="50" flex-sm="100" flex-xs="100" name="subject"
+              ha-search="searchExtraCurriculumSubjects" ha-controller="directiveControllers"
+              label="higherProtocol.subjectRequired" no-paging="true" display="display">
+            </hois-autocomplete>
+            <div layout="column" ng-if="subject.subgroups.length > 0" flex="20" flex-sm="100" flex-xs="100">
+              <md-input-container flex="100" style="padding-top: 3px;" class="md-input" 
+                ng-class="{'md-input-has-value' : subject.subgroup !== null}">
+                <label class="md-required">{{'declaration.subgroup' | translate}}</label>
+              </md-input-container>
+              <md-select ng-model="subject.subgroup"  style="margin-top: -21px;padding-top: 10px" md-no-asterisk
+                required aria-label="{{'declaration.subgroup' | translate}}">
+                <md-option ng-value="subgroup" ng-repeat="subgroup in subject.subgroups | orderBy: 'code'">
+                  {{currentLanguageNameField(subgroup)}}
+                </md-option>
+              </md-select>
+            </div>
+          </div>
+          <md-button class="md-raised md-primary" type="submit"
+          ng-disabled="!subject || (!subject.subgroup && subject.subgroups.length > 0) || subject.subgroups === null || subject.subgroups === undefined || !subject.subgroups.$resolved">{{"main.button.add" | translate}}</md-button>
+        </form>
+      </fieldset>
+      <div>&nbsp;</div>
+
+      <md-table-container>
+        <table md-table>
+          <thead md-head>
+            <tr md-row>
+              <th md-column>{{'declaration.subject' | translate}}</th>
+              <th md-column>{{'declaration.teacher' | translate}}</th>
+              <th md-column>{{'declaration.subgroup' | translate}}</th>
+              <th md-column>{{'declaration.eap' | translate}}</th>
+              <th md-column>{{'declaration.assessment' | translate}}</th>
+              <th md-column>{{'declaration.module_isRequired' | translate}}</th>
+              <th md-column>{{'declaration.prerequisites' | translate}}</th>
+              <th md-column>{{'studyMaterial.label' | translate}}</th>
+              <th md-column></th>
+            </tr>
+          </thead>
+          <tbody md-body>
+            <tr md-row ng-repeat="subject in declaration.subjects | orderBy: 'subject.' + currentLanguageNameField()" ng-class="{listItem: subject.newlyAdded}" ng-class-odd="'odd'" ng-class-even="'even'">
+              <td md-cell>
+                <a href="#/subject/{{subject.subject.id}}">
+                  {{currentLanguageNameField(subject.subject)}} ({{subject.subject.code}})
+                  <span ng-show="subject.isDeclaredRepeatedly">&nbsp;*</span>
+                </a>
+              </td>
+              <td md-cell>
+                <table>
+                  <tr ng-repeat="program in subject.programs | orderBy: 'teacherName'">
+                    <td>{{program.teacherName}}
+                      <span ng-if="auth.isStudent() && program.id !== -1 && program.publicStudent">
+                        (<a href="#/subjectProgram/public/{{program.id}}/view" hide-xs>{{'declaration.seeProgram' | translate}}</a><a href="#/subjectProgram/public/{{program.id}}/view" show-xs>{{'declaration.seeProgramMobile' | translate}}</a>)
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td md-cell>{{subject.subgroup != null ? currentLanguageNameField(subject.subgroup) : '-'}}</td>
+              <td md-cell>{{subject.subject.credits}}</td>
+              <td md-cell>{{subject.subject.assessment}}</td>
+              <td md-cell>{{subject.module != null ? currentLanguageNameField(subject.module) : ' - '}} / {{subject.isOptional ? 'main.no' : 'main.yes' | translate}}</td>
+              <td md-cell>
+                <span ng-show="!hasPrerequisites(subject)"> - </span>
+                <span ng-show="hasPrerequisites(subject)"><a href="" ng-click="seePrerequisites(subject)">
+                  {{'declaration.seePrerequisites' | translate}}</a>
+                </span>
+              </td>
+              <td md-cell><a ng-href="/#/declaration/studyMaterial/higher/{{subject.subjectStudyPeriod}}/view">{{'studyMaterial.openfolder' | translate}}</a></td>
+              <td md-cell>
+                <a ng-if="!subject.isAssessed && (!auth.isStudent() || (subject.isOptional || (!subject.isOptional && declaration.isStudentDeclarationDelete)))" 
+                  class="remove nomargin" ng-click="removeSubject(subject)">&times;</a>
+              </td>
+            </tr>
+            <tr md-row class="border-top-line" style="font-weight: bold;">
+              <td md-cell>{{'main.OF' | translate}}</td>
+              <td md-cell colspan="2"></td>
+              <td md-cell>{{calculateAll(declaration.subjects) | hoisNumber: 1}} {{'declaration.eap' | translate}}</td>
+              <td md-cell colspan="5"></td>
+            </tr>
+          </tbody>
+        </table>
+      </md-table-container>
+      <div>&nbsp;</div>
+      <div layout="row">
+        <md-button ng-show="declaration.canBeSetConfirmed" class="md-raised md-primary" ng-click="confirm()">{{'declaration.confirm' | translate}}</md-button>
+        <md-button ng-show="declaration.canBeSetUnconfirmed" class="md-raised md-primary" ng-click="removeConfirmation()">{{'declaration.removeConfirmation' | translate}}</md-button>
+        <md-button ng-if="!auth.isStudent()" class="md-raised md-default" ng-click="back('#/declarations')">{{'main.button.back' | translate}}</md-button>
+        <md-button ng-if="auth.isStudent()" class="md-raised md-default" ng-click="back('#/declaration/current/view')">{{'main.button.back' | translate}}</md-button>
+      </div>
+    </div>
+  </fieldset>
+</div>
+
+<style>
+  .listItem.ng-enter {
+      transition: all 2.5s ease;
+  }
+  .listItem.ng-enter-active {
+      background-color: #84ff8e;
+  }
+  table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2),
+  table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2) {
+    padding-right: 28px !important;
+  }
+
+  legend.period > span {
+    color: rgb(25, 169, 25);
+    font-size: 10pt;
+  }
+
+  @media screen and (max-width: 959px) {
+    legend.period {
+      margin-bottom: 10pt;
+    }
+
+    legend.period > span {
+      position: absolute;
+      margin-right: 20px;
+      display:block;
+    }
+  }
+
+  tr.border-top-line, tr.border-top-line > td {
+    border-top: 1px solid #525252 !important;
+  }
+</style>

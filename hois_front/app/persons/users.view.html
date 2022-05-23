@@ -1,0 +1,79 @@
+<div ng-cloak ng-include="'persons/persons.navbar.html'"></div>
+
+<div class="ois-form-layout-padding form-readonly" layout="column" ng-cloak>
+  <form name="userForm" class="ois-form-layout">
+    <div layout="column" flex>
+      <div layout="row" flex>
+        <md-input-container flex>
+          <label>{{'person.name' | translate}}</label>
+          <hois-value value="user.person.fullname"></hois-value>
+        </md-input-container>
+        <md-input-container flex>
+          <label>{{'person.idcode' | translate}}</label>
+          <hois-value value="user.person.idcode"></hois-value>
+        </md-input-container>
+      </div>
+      <md-input-container flex>
+        <label>{{'school.label' | translate}}</label>
+        <hois-value value="currentLanguageNameField(user.school)"></hois-value>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'user.role' | translate}}</label>
+        <hois-classifier-value ng-model="user.role" main-classifier-code="ROLL"></hois-classifier-value>
+      </md-input-container>
+      <md-input-container flex ng-if="(user.role === 'ROLL_A' || user.role === 'ROLL_O') && user.userRole">
+        <label>{{'userRole.label' | translate}}</label>
+        <hois-value value="currentLanguageNameField(user.userRole)"></hois-value>
+      </md-input-container>
+      <div ng-if="user.curriculums.length > 0" style="margin-top: -18px;"><!-- Be the same as readonly fields -->
+        <md-table-container>
+          <table md-table class="secondary-table">
+            <thead md-head>
+              <tr md-row>
+                <th md-column>{{'main.order' | translate}}</th>
+                <th md-column style="width:99%">{{'user.curriculums' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr md-row ng-repeat="curriculum in user.curriculums | orderBy: [currentLanguageNameField(), 'code']" ng-class-odd="'odd'" ng-class-even="'even'">
+                <td md-cell>{{$index + 1}}.</td>
+                <td md-cell>{{currentLanguageNameField(curriculum)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+        <div>&nbsp;</div>
+      </div>
+      <md-input-container flex>
+        <label>{{'user.validFrom' | translate}}</label>
+        <hois-value value="user.validFrom | hoisDate"></hois-value>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'user.validThru' | translate}}</label>
+        <hois-value value="user.validThru | hoisDate"></hois-value>
+      </md-input-container>
+    </div>
+    <div layout-padding>
+      <div flex>
+        <md-table-container>
+          <table md-table ng-show="user.role" class="secondary-table">
+            <thead md-head>
+            <tr md-row>
+              <th md-column>{{'user.rights.right' | translate}}</th>
+              <th md-column ng-repeat="perm in permissions">{{currentLanguageNameField(perm)}}</th>
+            </tr>
+            </thead>
+            <tbody md-body>
+            <tr md-row ng-repeat="object in objects | orderBy: currentLanguageNameField()" ng-class-odd="'odd'" ng-class-even="'even'">
+              <td md-cell>{{currentLanguageNameField(object)}}</td>
+              <td md-cell ng-repeat="perm in permissions">{{showPermission(object.code, perm.code) ? ((user.rights[object.code] || []).indexOf(perm.code) !== -1 ? 'main.yes' : 'main.no' | translate) : ''}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+      </div>
+    </div>
+    <md-button ng-if="user.role !== 'ROLL_T' && user.role !== 'ROLL_L' && isAuthorized('ROLE_OIGUS_M_TEEMAOIGUS_KASUTAJA')" ng-href="#/persons/{{user.person.id}}/users/{{user.id}}/edit?_noback" class="md-raised md-primary">{{'main.button.change' | translate}}</md-button>
+    <md-button ng-click="back('#/persons/' + user.person.id)" class="md-raised">{{'main.button.back' | translate}}</md-button>
+  </form>
+</div>

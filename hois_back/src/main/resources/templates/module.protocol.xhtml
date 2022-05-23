@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{{ "report.module.protocol.title" | translate }}</title>
+    <style type="text/css">
+      {% include "styles.css" %}
+    </style>
+  </head>
+  <body>
+    <p class="protocol-header-small">{{ content.school }}</p>
+    <p class="protocol-header-small">{{ "report.module.protocol.protocolNr" | translate }} {{ content.protocolNr }}</p>
+
+    <br/><br/>
+
+    <p class="protocol-header-big">{{ content.curriculumModule }} ({{ content.curriculumVersion }}),
+      {{ content.credits }} {{ "report.module.protocol.vocationalCredits" | translate }}</p>
+
+    <br/>
+
+    <p>
+      {% if content.isHigherSchool %} 
+        {{ "report.module.protocol.teacherHigher" | translate }}: {{ content.teacher }}
+      {% else %}
+        {{ "report.module.protocol.teacherVocational" | translate }}: {{ content.teacher }}
+      {% endif %}
+    </p>
+    <p>{{ "report.module.protocol.assessment" | translate  }}: {{ content.assessmentType }}</p>
+
+    <br/><br/>
+
+    <table class="reporttable">
+      <tr>
+        <td class="label">{{ "report.module.protocol.student.nr" | translate }}</td>
+        <td class="label">{{ "report.module.protocol.student.name" | translate }}</td>
+		<td class="label">{{ "report.module.protocol.student.studentgroup" | translate }}</td>
+        <td class="label">{{ "report.module.protocol.module.grade" | translate }}</td>
+      </tr>
+      {% for student in content.protocolStudents %}
+      <tr>
+        <td>{{ loop.index + 1 }}.</td>
+        <td>{{ student.fullname }}</td>
+		<td>{{ student.studentgroup }}</td>
+        <td>
+          {{ student.grade }}
+          
+          {% if student.gradeName != null %}
+            ({{ student.gradeName }})
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <br/>
+
+    <table width="100%">
+      <tr>
+        <td align="left">{{ content.confirmDate | hoisDate }}</td>
+        <td align="center">{{ content.confirmer }}</td>
+      </tr>
+    </table>
+  </body>
+</html>

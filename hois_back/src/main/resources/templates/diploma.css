@@ -1,0 +1,70 @@
+@page {
+    size: A4;
+    margin: 60pt;
+}
+
+html {
+    font-family: Garamond;
+    font-size: 14pt;
+}
+.diploma {
+    height: 670pt;
+    width: 100%;
+}
+.page-break-before {
+    page-break-before: always;
+}
+.diploma-cumlaude {
+    height: 20pt;
+    margin-top: 220pt;
+    text-align: center;
+    width: 100%;
+}
+.diploma-center {
+    height: 230pt;
+    margin-top: 20pt;
+    text-align: center;
+    width: 100%;
+}
+.diploma-center > div {
+    margin: 9pt 0;
+}
+.diploma-name {
+    font-size: 18pt;
+    font-weight: bold;
+}
+.diploma-grade-en {
+    font-weight: bold;
+    font-style: italic;
+}
+.diploma-signers2 {
+    margin-top: 72pt;
+    width: 100%;
+}
+.diploma-signers {
+    margin-top: 80pt;
+    width: 100%;
+}
+.diploma-signer-left3 {
+    display: inline-block;
+    margin-top: 2pt;
+    width: 88%;
+}
+.diploma-signer-left2 {
+    display: inline-block;
+    margin-top: 10pt;
+    width: 88%;
+}
+.diploma-signer-left {
+    display: inline-block;
+    margin-top: 10pt;
+    width: 55%;
+}
+.diploma-signer-right {
+    display: inline-block;
+    width: 44%;
+}
+.diploma-city {
+    margin-top: 2pt;
+    width: 100%;
+}

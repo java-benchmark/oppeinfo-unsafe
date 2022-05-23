@@ -1,0 +1,87 @@
+<md-table-container>
+  <table md-table class="secondary-table" ng-if="submittedType">
+    <thead md-head>
+      <tr md-row>
+        <th md-column ng-if="applicationsTable.showSelect">
+          <md-input-container>
+            <md-checkbox ng-model="selectAllApplications" aria-label="mySchool" ng-change="updateAllApplicationCheckBoxes(selectAllApplications)">
+            </md-checkbox>
+          </md-input-container>
+        </th>
+        <th md-column>{{'stipend.nr' | translate}}</th>
+        <th md-column>{{'stipend.type' | translate}}</th>
+        <th md-column>{{'stipend.typeEhis' | translate}}</th>
+        <th md-column>{{'stipend.scholarshipName' | translate}}</th>
+        <th md-column>{{'stipend.curriculum' | translate}}</th>
+        <th md-column>{{'stipend.applicant' | translate}}</th>
+        <th md-column>{{'stipend.student.idCode' | translate}}</th>
+        <th md-column>{{'stipend.studentGroup' | translate}}</th>
+        <th md-column>{{'stipend.student.averageMark' | translate}}</th>
+        <th md-column>{{'stipend.student.wagMark' | translate}}</th>
+        <th md-column>{{'stipend.student.lastPeriodMark' | translate}}</th>
+        <th md-column>{{'stipend.student.lastPeriodWagMark' | translate}}</th>
+        <th md-column>{{'stipend.student.credits' | translate}}</th>
+        <th md-column>{{'stipend.hasDirective' | translate}}</th>
+        <th md-column>{{'stipend.decision.label' | translate}}</th>
+        <th md-column>{{'stipend.student.status' | translate}}</th>
+        <th md-column>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row ng-repeat="application in applications" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{'scholarship-bottom-border': $index + 1 === allowedCount}">
+        <td md-cell ng-if="applicationsTable.showSelect">
+          <md-input-container>
+            <md-checkbox ng-model="selected[application.id]" aria-label="mySchool">
+            </md-checkbox>
+          </md-input-container>
+        </td>
+        <td md-cell>{{$index + 1}}</td>
+        <td md-cell>{{currentLanguageNameField(application.type)}}</td>
+        <td md-cell>{{currentLanguageNameField(application.typeEhis)}}</td>
+        <td md-cell>
+          <a href="#/scholarships/applications/{{application.id}}">{{application.termNameEt}}</a>
+        </td>
+        <td md-cell>{{application.curriculumCode ? application.curriculumCode : '-'}}</td>
+        <td md-cell class="one-row">
+          <div layout="row" layout-align="start center" flex>
+            <span ng-style="application.nonCompliant ? {color: 'red'} : {}">
+              <a ng-if="application.canViewStudent" href="#/students/{{application.studentId}}/main">{{application.studentName ? application.studentName : '-'}}</a>
+              <span ng-if="!application.canViewStudent">{{application.studentName ? application.studentName : '-'}}</span>
+            </span>
+            <md-button ng-if="application.nonCompliant && !application.hasDirective" flex class="md-icon-button" ng-click="scholarshipTermCompliances(application)">
+              <md-icon md-colors="{color: 'default-warn'}" md-font-set="material-icons">warning</md-icon>
+            </md-button>
+          </div>
+        </td>
+        <td md-cell>{{application.idcode ? application.idcode : '-'}}</td>
+        <td md-cell>{{application.studentGroup ? application.studentGroup : '-'}}</td>
+        <td md-cell>
+          {{isNumber(application.averageMark) ? application.averageMark : '-'}}
+          <span class="scholarship-sais" ng-show="application.isSais"> S</span>
+        </td>
+        <td md-cell>
+          {{isNumber(application.wagMark) ? application.wagMark : '-'}}
+          <span class="scholarship-sais" ng-show="application.isSais"> S</span>
+        </td>
+        <td md-cell>
+          {{isNumber(application.lastPeriodMark) ? application.lastPeriodMark : '-'}}
+          <span class="scholarship-sais" ng-show="application.isSais"> S</span>
+        </td>
+        <td md-cell>
+          {{isNumber(application.lastPeriodWagMark) ? application.lastPeriodWagMark : '-'}}
+          <span class="scholarship-sais" ng-show="application.isSais"> S</span>
+        </td>
+        <td md-cell>{{isNumber(application.credits) ? application.credits : '-'}}</td>
+        <td md-cell>{{application.hasDirective ? ('main.yes' | translate) : ('main.no' | translate)}}</td>
+        <td md-cell>
+          <a ng-if="application.canViewDecision" ng-href="#/scholarships/decision/{{scholarshipType}}/{{application.decisionId}}">{{application.decisionDecided | hoisDate}}</a>
+          <span ng-if="!application.canViewDecision">{{application.decisionDecided | hoisDate}}</span>
+        </td>
+        <td md-cell>{{currentLanguageNameField(application.status)}}
+          <md-tooltip ng-if="['STIPTOETUS_STAATUS_L', 'STIPTOETUS_STAATUS_T'].indexOf(application.status.code) !== -1  && application.rejectComment">{{application.rejectComment}}</md-tooltip>
+        </td>
+        <td md-cell>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>

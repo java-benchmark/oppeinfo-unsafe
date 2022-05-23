@@ -1,0 +1,128 @@
+<div ng-if="auth.isAdmin() || auth.isLeadingTeacher() || auth.isTeacher()" class="ois-form-layout-padding ois-form-layout" ng-cloak>
+  <div flex>
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'main.searchlabel' | translate}}</legend>
+      <form name="searchForm" ng-submit="loadData()" novalidate>
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <div ng-if="auth.isAdmin() || auth.isTeacher()" flex="45" flex-sm="100" flex-xs="100">
+            <hois-autocomplete flex ha-controller="directiveControllers" ng-model="criteria.studentObject" method="students" name="student"
+              label="apel.student"></hois-autocomplete>
+          </div>
+          <md-input-container ng-if="auth.isLeadingTeacher()" flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'apel.studentName' | translate}}</label>
+            <input ng-model="criteria.name" name="name" type="text" md-maxlength="255">
+          </md-input-container>
+          <div flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <div layout="column" flex>
+              <div layout="row" flex>
+                <hois-autocomplete flex ha-controller="directiveControllers" ng-model="criteria.committeeObject" method="committees" name="committee" 
+                  additional-query-params="{type: 'KOMISJON_V', memberPerson: auth.isTeacher() ? auth.user : null}" label="apel.committee"></hois-autocomplete>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <div flex="45" flex-sm="100" flex-xs="100">
+            <div layout="column" flex>
+              <div layout="row" layout-xs="column" flex>
+                <md-input-container>
+                  <label>{{'apel.insertedFrom' | translate}}</label>
+                  <md-datepicker ng-model="criteria.insertedFrom" md-max-date="criteria.insertedThru" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                </md-input-container>
+                <md-input-container flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                  <label>{{'apel.insertedThru' | translate}}</label>
+                  <md-datepicker ng-model="criteria.insertedThru" md-min-date="criteria.insertedFrom" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                </md-input-container>
+              </div>
+            </div>
+          </div>
+
+          <div ng-if="hasApelViewPerm" flex="45" flex-sm="100" flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+            <div layout="column" flex>
+              <div layout="row" flex>
+                <md-input-container>
+                  <label>{{'apel.confirmedFrom' | translate}}</label>
+                  <md-datepicker ng-model="criteria.confirmedFrom" md-max-date="criteria.confirmedThru" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                </md-input-container>
+                <md-input-container flex-offset="5" flex-offset-xs="0" flex-offset-sm="0">
+                  <label>{{'apel.confirmedThru' | translate}}</label>
+                  <md-datepicker ng-model="criteria.confirmedThru" md-min-date="criteria.confirmedFrom" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+                </md-input-container>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div ng-if="hasApelViewPerm" layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label>{{'apel.status' | translate}}</label>
+            <hois-classifier-select multiple ng-model="criteria.status" main-classifier-code="VOTA_STAATUS" model-value-attr="code"></hois-classifier-select>
+          </md-input-container>
+        </div>
+
+        <div layout="row">
+          <md-button type="submit" class="md-raised md-primary">{{'main.button.search' | translate}}</md-button>
+          <md-button class="md-raised" ng-click="clearCriteria()">{{'main.button.clear' | translate}}</md-button>
+          <md-button ng-if="isAuthorized('ROLE_OIGUS_M_TEEMAOIGUS_VOTA')" ng-href="#/apelApplication/new"
+            class="md-raised">{{'main.button.create' | translate}}</md-button>
+        </div>
+        <div flex-xs="0" flex-gt-xs="0" flex-gt-sm="50"></div>
+      </form>
+    </fieldset>
+  </div>
+</div>
+
+<div layout-padding ng-if="auth.isStudent()">
+  <div flex>
+    <md-button ng-href="#/apelApplication/new" class="md-raised">{{'main.button.create' | translate}}</md-button>
+  </div>
+</div>
+
+<div layout-padding>
+  <div flex>
+    <md-table-container>
+      <table md-table md-progress="tabledata.$promise">
+        <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+          <tr md-row>
+            <th md-column ng-if="!auth.isStudent()" md-order-by="student_lastname, student_firstname">{{'apel.studentName' | translate}}</th>
+            <th md-column ng-if="!auth.isStudent()" md-order-by="sg.code">{{'apel.studentGroup' | translate}}</th>
+            <th md-column ng-if="!auth.isStudent()" md-order-by="{{'curriculum_' + currentLanguageNameField()}}">{{'apel.curriculum' | translate}}</th>
+            <th md-column ng-if="hasApelViewPerm" md-order-by="application_status">{{'apel.status' | translate}}</th>
+            <th md-column md-order-by="inserted">{{'apel.insertedDate' | translate}}</th>
+            <th md-column ng-if="hasApelViewPerm" md-order-by="confirmed">{{'apel.confirmedDate' | translate}}</th>
+            <th md-column ng-if="auth.isStudent()"></th>
+            <th md-column></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell ng-if="!auth.isStudent()">
+              <a ng-href="#/apelApplication/{{row.id}}/view">{{currentLanguageNameField(row.student)}}</a>
+            </td>
+            <td md-cell ng-if="!auth.isStudent()">{{row.studentGroup}}</td>
+            <td md-cell ng-if="!auth.isStudent()">{{currentLanguageNameField(row.curriculum)}}</td>
+            <td md-cell ng-if="hasApelViewPerm">
+              <hois-classifier-value ng-model="row.status" main-classifier-code="VOTA_STAATUS"></hois-classifier-value>
+            </td>
+            <td md-cell>{{row.inserted | hoisDate}}</td>
+            <td md-cell ng-if="hasApelViewPerm">{{row.confirmed | hoisDate}}</td>
+            <td md-cell ng-if="auth.isStudent()">
+              <div>
+                <md-button md-no-ink class="md-primary change-button" ng-href="#/apelApplication/{{::row.id}}/view">{{'main.button.view' | translate}}</md-button>
+              </div>
+            </td>
+            <td md-cell>
+              <div ng-if="row.canEdit || row.canReview">
+                <md-button md-no-ink class="md-primary change-button" ng-href="#/apelApplication/{{::row.id}}/edit">{{'main.button.change' | translate}}</md-button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" md-total="{{tabledata.totalElements}}"
+      md-on-paginate="loadData" md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}"
+      md-page-select></md-table-pagination>
+  </div>
+</div>

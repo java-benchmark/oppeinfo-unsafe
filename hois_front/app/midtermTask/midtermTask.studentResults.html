@@ -1,0 +1,154 @@
+<div class="ois-form-layout-padding form-readonly" ng-cloak>
+  <form name="midtermTaskResultForm">
+    <div layout="row" layout-sm="column" layout-xs="column"  >
+      <md-input-container flex="20" flex-sm="100" flex-xs="100">
+        <label class="textInput">{{'midtermTask.subject' | translate}}</label>
+        <hois-value value="record.subjectStudyPeriod.subject.nameEt"></hois-value>
+      </md-input-container>
+      <md-input-container flex="20" flex-sm="100" flex-xs="100"
+      flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+        <label class="textInput">{{auth.higher ? ('midtermTask.teacherHigher' | translate) : ('midtermTask.teacherVocational' | translate)}}</label>
+        <hois-value value="record.subjectStudyPeriod.teachers.join(', ')"></hois-value>
+      </md-input-container>
+      <md-input-container flex="20" flex-sm="100" flex-xs="100"
+      flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+        <label class="textInput">{{'midtermTask.studyPeriod' | translate}}</label>
+        <hois-value value="currentLanguageNameField(record.subjectStudyPeriod.studyPeriod)"></hois-value>
+      </md-input-container>
+      <md-input-container flex="20" flex-sm="100" flex-xs="100"
+      flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+        <label class="textInput">{{'midtermTask.assessment' | translate}}</label>
+        <hois-value value="currentLanguageNameField(record.assessment)"></hois-value>
+      </md-input-container>
+    </div>
+    <div layout="row" ng-if="record.subgroups.length > 0">
+      <md-input-container flex="15" flex-sm="50" flex-xs="100">
+        <label>{{'midtermTask.subgroupSelect' | translate}}</label>
+        <md-select ng-model="controller.subgroup" ng-model-options="{trackBy: '$value.id'}">
+          <md-option md-option-empty></md-option>
+          <md-option ng-value="val" ng-repeat="val in record.subgroups">{{currentLanguageNameField(val)}}</md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <md-table-container>
+      <table md-table>
+        <thead md-head>
+          <tr md-row>
+            <th md-column>{{'main.order' | translate}}</th>
+            <th md-column>{{'midtermTask.student' | translate}}</th>
+            <th md-column>{{'midtermTask.studentGroup' | translate}}</th>
+            <th md-column ng-if="record.subgroups.length > 0">{{'midtermTask.subgroup' | translate}}</th>
+            <th md-column ng-repeat="midtermTask in record.midtermTasks">
+              {{getMidtermTaskHeader(midtermTask)}}
+              <span ng-if="midtermTask.moodleGradeItemId"><md-icon md-font-set="material-icons">school</md-icon></span>
+            </th>
+            <th md-column>{{'midtermTask.finalGrade' | translate}}</th>
+            <th md-column>{{'midtermTask.protocols' | translate}}</th>
+            <th md-column class="one-row">{{'midtermTask.notes' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row ng-repeat="student in record.students | filter: filterStudents(controller.subgroup) | orderBy: ['lastname', 'firstname']" ng-class-odd="'odd'" ng-class-even="'even'">
+            <ng-form name="midtermTaskUnitForm">
+              <td md-cell>{{$index + 1}}.</td>
+              <td md-cell>
+                {{student.name}}
+                <span ng-if="student.isMoodleRegistered"><md-icon md-font-set="material-icons">school</md-icon></span>
+              </td>
+              <td md-cell>{{student.studentGroup}}</td>
+              <td md-cell ng-if="record.subgroups.length > 0">
+                <span ng-if="!record.canEditSubgroups">{{currentLanguageNameField(student.subgroup)}}</span>
+                <md-select ng-if="record.canEditSubgroups" ng-model="student.subgroup" ng-model-options="{trackBy: '$value.id'}"
+                  aria-label="{{'midtermTask.subgroup' | translate}}" ng-change="updateSubgroupPlaces(student, student.subgroup.id)">
+                  <md-option ng-value="val" ng-repeat="val in record.subgroups">
+                    {{currentLanguageNameField(val)}} ({{'midtermTask.subgroupPlaces' | translate: {used: val.declared, all: val.places} }})
+                  </md-option>
+                </md-select>
+              </td>
+              <td md-cell ng-repeat="result in record.studentResults | filter: filterStudentResults(student)">
+                <md-input-container ng-if="result.isText">
+                  <input ng-model="result.pointsTxt" type="text" md-maxlength="10"
+                  aria-label="{{'midtermTask.pointsTxt' | translate}}"
+                  ng-disabled="!student.studentResultCanBeChanged || moodleTasks[result.midtermTask]">
+                </md-input-container>
+                <md-input-container ng-if="!result.isText">
+                  <input ng-model="result.points" type="number" min="0" max="{{result.maxPoints}}" pattern="^\d+(\.\d{1,2})?$"
+                  aria-label="{{'midtermTask.points' | translate}}"
+                  ng-disabled="!student.studentResultCanBeChanged || moodleTasks[result.midtermTask]">
+                </md-input-container>
+              </td>
+              <td md-cell>
+                <table>
+                  <tr ng-repeat="protocol in record.protocols | orderBy: 'protocolNr' | filter: filterProtocols(student)">
+                    <td>
+                      <table>
+                        <tr ng-repeat="protocolStudent in protocol.protocolStudents | filter: filterStudentProtocols(student)">
+                          <td>{{protocolStudent.grade | hoisHigherGrade: auth.school.letterGrades}}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td md-cell colspan="2">
+                <table>
+                  <tr ng-repeat="protocol in record.protocols | orderBy: 'protocolNr' | filter: filterProtocols(student)">
+                    <td class="protocol">
+                      <a ng-href="#/higherProtocols/{{::protocol.id}}/view">
+                        <span>{{protocol.protocolNr}}</span>
+                        <hois-classifier-value class="inline" ng-model="protocol.protocolType" main-classifier-code="PROTOKOLLI_LIIK">
+                        </hois-classifier-value>
+                      </a>
+                    </td>
+                    <td>
+                      <table>
+                        <tr ng-repeat="protocolStudent in protocol.protocolStudents | filter: filterStudentProtocols(student)">
+                          <td>{{protocolStudent.addInfo}}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </ng-form>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+  </form>
+
+  <div layout="row">
+      <md-button class="md-raised md-primary" ng-click="save()" ng-hide="(record.subjectStudyPeriod.isPracticeSubject && record.subgroups.length === 0) || record.students.length === 0">{{'main.button.save' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="back('#/subjectStudyPeriods', midtermTaskResultForm)">{{'main.button.back' | translate}}</md-button>
+      <md-button class="md-raised" ng-href="#/subjectStudyPeriods/{{subjectStudyPeriodId}}/midtermTasks"
+      ng-hide="record.subjectStudyPeriod.isPracticeSubject">{{'midtermTask.add' | translate}}</md-button>
+  </div>
+  <div layout="row" ng-if="moodleCourseId">
+      <md-button class="md-raised" ng-click="enrollStudents()">{{'moodle.enrollStudents' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="importGradeItems()">{{'moodle.importGradeItems' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="importAllGrades()">{{'moodle.importAllGrades' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="importMissingGrades()">{{'moodle.importMissingGrades' | translate}}</md-button>
+  </div>
+</div>
+
+<style>
+
+  .inline {
+    display: inline;
+  }
+
+  .protocol {
+    min-width: 150px;
+    padding-right: 50px;
+  }
+
+  table.md-table th.md-column {
+    white-space: unset;
+  }
+
+  table.md-table th.md-column:last-child {
+    padding-right: 90px;
+    padding-left: 100px;
+  }
+
+</style>

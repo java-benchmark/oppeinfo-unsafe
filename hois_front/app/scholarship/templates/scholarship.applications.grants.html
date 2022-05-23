@@ -1,0 +1,88 @@
+<div ng-if="applications.length > 0" layout="row" layout-md="column" layout-sm="column" layout-xs="column" flex>
+  <i class="material-icons">*</i>
+  <span class="capacity-type-legend" md-colors="{background: 'deep-orange-100'}">{{'stipend.bankIdcodeNotMatchingPerson' | translate}}</span>
+</div>
+
+<md-table-container>
+  <table md-table class="secondary-table" ng-if="submittedType">
+    <thead md-head>
+      <tr md-row>
+        <th md-column ng-if="applicationsTable.showSelect">
+          <md-input-container>
+            <md-checkbox ng-model="selectAllApplications" aria-label="mySchool" ng-change="updateAllApplicationCheckBoxes(selectAllApplications)">
+            </md-checkbox>
+          </md-input-container>
+        </th>
+        <th md-column>{{'stipend.nr' | translate}}</th>
+        <th md-column>{{'stipend.type' | translate}}</th>
+        <th md-column>{{'stipend.grantName' | translate}}</th>
+        <th md-column>{{'stipend.curriculum' | translate}}</th>
+        <th md-column>{{'stipend.applicant' | translate}}</th>
+        <th md-column>{{'stipend.student.idCode' | translate}}</th>
+        <th md-column>{{'stipend.studentGroup' | translate}}</th>
+        <!-- only for pohi and eri-->
+        <th md-column ng-if="submittedType !== 'STIPTOETUS_SOIDU'">{{'stipend.averageMarkShort' | translate}}</th>
+        <th md-column ng-if="submittedType !== 'STIPTOETUS_SOIDU'">{{'stipend.student.lastPeriodMark' | translate}}</th>
+        <th md-column ng-if="submittedType !== 'STIPTOETUS_SOIDU'">{{'stipend.student.curriculumCompletion' | translate}}</th>
+        <!-- only for pohi-->
+        <th md-column ng-if="submittedType === 'STIPTOETUS_POHI'">{{'stipend.student.absences' | translate}}</th>
+        <!-- only for soidu -->
+        <th md-column ng-if="submittedType === 'STIPTOETUS_SOIDU'">{{'stipend.compensationReason' | translate}}</th>
+        <th md-column ng-if="submittedType === 'STIPTOETUS_SOIDU'">{{'stipend.compensationFrequency' | translate}}</th>
+
+        <th md-column>{{'stipend.student.isTeacherConfirm' | translate}}</th>
+        <th md-column>{{'stipend.hasDirective' | translate}}</th>
+        <th md-column>{{'stipend.decision.label' | translate}}</th>
+        <th md-column>{{'stipend.status' | translate}}</th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row ng-repeat="application in applications track by $index" ng-class-odd="'odd'" ng-class-even="'even'"
+        ng-class="{'scholarship-bottom-border': $index + 1 === allowedCount, 'scholarship-warning': application.bankAccountOwnerIdcode && application.idcode !== application.bankAccountOwnerIdcode}">
+        <td md-cell ng-if="applicationsTable.showSelect">
+          <md-input-container>
+            <md-checkbox ng-model="selected[application.id]" ng-hide="application.hasDirective" ng-disabled="!application.needsConfirm && auth.isTeacher()" aria-label="mySchool">
+            </md-checkbox>
+          </md-input-container>
+        </td>
+        <td md-cell>{{$index + 1}}</td>
+        <td md-cell>{{currentLanguageNameField(application.type)}}</td>
+        <td md-cell>
+          <a href="#/scholarships/applications/{{application.id}}">{{application.termNameEt}}</a>
+        </td>
+        <td md-cell>{{application.curriculumCode ? application.curriculumCode : '-'}}</td>
+        <td md-cell class="one-row">
+          <div layout="row" layout-align="start center" flex>
+            <span ng-style="application.nonCompliant && !application.hasDirective ? {color: 'red'} : {}">
+              <a ng-if="application.canViewStudent" href="#/students/{{application.studentId}}/main">{{application.studentName ? application.studentName : '-'}}</a>
+              <span ng-if="!application.canViewStudent">{{application.studentName ? application.studentName : '-'}}</span>
+            </span>
+            <md-button ng-if="application.nonCompliant && !application.hasDirective" flex class="md-icon-button" ng-click="scholarshipTermCompliances(application)">
+              <md-icon md-colors="{color: 'default-warn'}" md-font-set="material-icons">warning</md-icon>
+            </md-button>
+          </div>
+        </td>
+        <td md-cell>{{application.idcode ? application.idcode : '-'}}</td>
+        <td md-cell>{{application.studentGroup ? application.studentGroup : '-'}}</td>
+        <!-- only for pohi and eri-->
+        <td md-cell ng-if="submittedType !== 'STIPTOETUS_SOIDU'">{{application.averageMark ? application.averageMark : '-'}}</td>
+        <td md-cell ng-if="submittedType !== 'STIPTOETUS_SOIDU'">{{application.lastPeriodMark ? application.lastPeriodMark : '-'}}</td>
+        <td md-cell ng-if="submittedType !== 'STIPTOETUS_SOIDU'">{{isNumber(application.curriculumCompletion) ? application.curriculumCompletion : '-'}}</td>
+        <!-- only for pohi-->
+        <td md-cell ng-if="submittedType === 'STIPTOETUS_POHI'">{{isNumber(application.absences) ? application.absences : '-'}}</td>
+        <!-- only for soidu -->
+        <td md-cell ng-if="submittedType === 'STIPTOETUS_SOIDU'">{{application.compensationReason ? currentLanguageNameField(application.compensationReason) : '-'}}</td>
+        <td md-cell ng-if="submittedType === 'STIPTOETUS_SOIDU'">{{application.compensationFrequency ? currentLanguageNameField(application.compensationFrequency) : '-'}}</td>
+        <td md-cell>{{application.isTeacherConfirm === null && application.needsConfirm ? ('stipend.needsConfirm' | translate) : application.isTeacherConfirm ? ("main.confirm" | translate) : application.needsConfirm ? ("main.noConfirm" | translate) : "-"}}</td>
+        <td md-cell>{{application.hasDirective ? ('main.yes' | translate) : ('main.no' | translate)}}</td>
+        <td md-cell>
+          <a ng-if="application.canViewDecision" ng-href="#/scholarships/decision/{{scholarshipType}}/{{application.decisionId}}">{{application.decisionDecided | hoisDate}}</a>
+          <span ng-if="!application.canViewDecision">{{application.decisionDecided | hoisDate}}</span>
+        </td>
+        <td md-cell>{{currentLanguageNameField(application.status)}}
+          <md-tooltip ng-if="['STIPTOETUS_STAATUS_L', 'STIPTOETUS_STAATUS_T'].indexOf(application.status.code) !== -1  && application.rejectComment">{{application.rejectComment}}</md-tooltip>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>

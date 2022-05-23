@@ -1,0 +1,79 @@
+<md-nav-bar md-selected-nav-item="currentNavItem" aria-label="{{'subjectStudyPeriod.label.options' | translate}}">
+    <md-nav-item md-nav-href="#/students/journals" name="journals">{{'student.journal.journals' | translate}}</md-nav-item>
+    <md-nav-item md-nav-href="#/students/study" name="study">{{'student.journal.study.label' | translate}}</md-nav-item>
+    <md-nav-item md-nav-href="#/students/tasks" name="tasks">{{'student.journal.tasks.label' | translate}}</md-nav-item>
+</md-nav-bar>
+
+<div layout-padding>
+    <div flex>
+        <hois-collapsable ng-repeat="year in journalsByYears track by $index" expanded="year.collapsableOpen" expand-collapse-action="getStudyYearJournals(year.yearId, year.yearCode)">
+            <hois-collapsable-header>
+                <span>
+                    <hois-classifier-value style="display: inline-block" ng-model="year.yearCode" main-classifier-code="OPPEAASTA"></hois-classifier-value>
+                    <span>{{'student.journal.studyYear' | translate}}</span>
+                </span>
+            </hois-collapsable-header>
+            <md-table-container>
+                <table md-table class="secondary-table">
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column width="20%">{{'student.journal.journalName' | translate}}</th>
+                            <th md-column width="10%">{{'student.journal.grades' | translate}}</th>
+                            <th md-column>{{'student.journal.modules' | translate}}</th>
+                            <th md-column>{{auth.higher ? ('student.journal.teachersHigher' | translate) : ('student.journal.teachersVocational' | translate)}}</th>
+                            <th md-column width="10%">{{'student.journal.absencesIncudlingWithoutReason' | translate}}</th>
+                            <th md-column>{{'student.journal.lateForClass' | translate}}</th>
+                            <th md-column></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="journal in year.journals | orderBy: 'nameEt'" ng-class-odd="'odd'" ng-class-even="'even'">
+                            <td md-cell><a ng-href="/#/students/journals/{{journal.id}}">{{journal.nameEt}}</a></td>
+                            <td md-cell>
+                                <span ng-repeat="result in journal.journalEntries | filter : {grade: '!'}"
+                                ng-class="{good: isFinal(result.entryType.code) && gradeUtil.isPositive(result.grade.code),
+                                bad: isFinal(result.entryType.code) && !gradeUtil.isPositive(result.grade.code),
+                                bold: isTestButNotFinal(result.entryType.code)}">
+                                    <span>{{result.grade.value}}</span>
+                                    <md-tooltip class="tooltip-multiline" ng-if="result.grade">
+                                        <span>{{result.gradeInserted | hoisDate}}</span>
+                                        <span ng-if="result.entryType.code">, {{currentLanguageNameField(result.entryType)}}</span>
+                                        <span ng-if="result.addInfo && !result.isRemark">, {{result.addInfo}}</span>
+                                        <span ng-if="result.entryType.code === 'SISSEKANNE_O'">, {{currentLanguageNameField(result)}}</span>
+                                    </md-tooltip>
+                                </span>
+                            </td>
+                            <td md-cell>{{currentLanguageNameField(journal.modules)}}</td>
+                            <td md-cell>{{journal.teachers}}</td>
+                            <td md-cell>
+                                <span>{{journal.absences['PUUDUMINE_P'] + journal.absences['PUUDUMINE_V'] + journal.absences['PUUDUMINE_PR']}} /</span>
+                                <span ng-class="{bad: journal.absences['PUUDUMINE_P'] > 0}">{{journal.absences['PUUDUMINE_P']}}</span>
+                            </td>
+                            <td md-cell>{{journal.absences['PUUDUMINE_H']}}</td>
+                            <td md-cell><a ng-href="/#/journal/studyMaterial/vocational/{{journal.id}}/view">{{'studyMaterial.label' | translate}}</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+        </hois-collapsable>
+    </div>
+</div>
+
+<style>
+.good {
+    color: rgb(13,71,161);
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.bad {
+    color: red;
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.bold {
+    font-weight: 500;
+}
+
+</style>

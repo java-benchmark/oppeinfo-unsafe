@@ -1,0 +1,60 @@
+<div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+  <div>
+    <form name="timetableForm" novalidate class="nomargin form-readonly" layout="column">
+      <div layout="row" class="form-readonly">
+          <md-input-container flex="30">
+            <label class="textInput">{{'timetable.timetablePlan.timetablePeriod' | translate}}</label>
+            <hois-value value="(timetable.startDate | hoisDate) + '-'+(timetable.endDate | hoisDate)"/>
+          </md-input-container>
+      </div>
+      <div flex-xs="0" flex-gt-xs="0" flex-gt-sm="50"></div>
+
+      <div id="tt" ng-repeat="curriculum in timetable.curriculums | orderBy: currentLanguageNameField()" layout="column" flex>
+        <div class="hois-collapse-header even">{{currentLanguageNameField(curriculum)}}{{curriculum.curriculumCode}}, {{currentLanguageNameField(curriculum.curriculumStudyLevelCode)}}</div>
+        <div flex>
+          <md-grid-list ng-app="app" md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-lg="8" md-cols-gt-lg="8" md-gutter="1em" md-row-height="40px" flex>
+            <md-grid-tile ng-repeat="group in curriculum.groups | orderBy: code">
+              <!--md-button class="md-button" md-colors="{background: 'background-200'}" ng-click="showTeacherWeek(row.teacherId)">
+                {{row.lastname}}, {{row.firstname}}
+              </md-button-->
+              <span style="position: absolute; left: 0px;">
+                <a ng-if="!timetable.higher" href="#/timetable/{{timetable.id}}/createVocationalPlan/{{group.id}}">{{group.code}}</a>
+                <a ng-if="timetable.higher" href="#/timetable/{{timetable.id}}/createHigherPlan/group/{{group.id}}">{{group.code}}</a>
+              </span>
+            </md-grid-tile>
+          </md-grid-list>
+        </div>
+      </div>
+
+      <div ng-if="timetable.pairs">
+        <table md-table>
+          <thead md-head>
+          <tr md-row>
+            <th md-column><label>{{'timetable.subjectTeacherPairs' | translate}}</label>
+            </th>
+          </tr>
+          </thead>
+          <tbody md-body>
+          <tr md-row ng-repeat="pair in timetable.pairs | orderBy: ['code', currentLanguageNameField()]" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td md-cell><a href="#/timetable/{{timetable.id}}/createHigherPlan/pair/{{pair.id}}">{{pair.code}} {{currentLanguageNameField(pair)}} / {{pair.teacherNames}}</a></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </form>
+
+    <md-button ng-if="timetable.editable && timetable.higher" md-no-ink class="md-primary change-button"
+      ng-href="#/timetable/{{::timetable.id}}/edit">{{'main.button.change' | translate}}
+    </md-button>
+
+    <md-button ng-if="timetable.status === 'TUNNIPLAAN_STAATUS_S' && canConfirm" ng-click="confirm()"
+               class="md-raised">{{'main.button.confirm' | translate}}
+    </md-button>
+    <md-button ng-if="timetable.status === 'TUNNIPLAAN_STAATUS_K'" ng-click="publicize()"
+               class="md-raised">{{'timetable.view.publicize' | translate}}
+    </md-button>
+    <md-button ng-href="#/timetable/timetableManagement" class="md-raised">{{'main.button.back' | translate}}
+    </md-button>
+  </div>
+</div>

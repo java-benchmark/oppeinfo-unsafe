@@ -1,0 +1,155 @@
+<div class="ois-form-layout-padding ois-form-layout" ng-cloak>
+  <div flex>
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'main.searchlabel' | translate}}</legend>
+      <form name="studentGroupTeacherReportForm" novalidate>
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <hois-autocomplete ng-if="auth.isAdmin() || auth.isLeadingTeacher()" flex="45" flex-sm="100" flex-xs="100"
+            ng-model="formState.studentGroup" ha-controller="directiveControllers" md-selected-item-change="studentGroupChanged()"
+            method="studentgroups" name="studentGroup" label="{{'report.studentGroupTeacher.studentGroup'}}"
+            additional-query-params="{valid: true, higher: false, studentGroupTeacherId: teacherId, userId: auth.isLeadingTeacher() ? auth.user : null}" required>
+          </hois-autocomplete>
+
+          <md-input-container ng-if="auth.isTeacher()" flex="45" flex-sm="100" flex-xs="100">
+            <label class="textInput">{{'report.studentGroupTeacher.studentGroup' | translate}}</label>
+            <md-select ng-model="formState.studentGroup" ng-change="studentGroupChanged()" ng-model-options="{trackBy: '$value.id'}" required>
+              <md-option ng-value="studentGroup" ng-repeat="studentGroup in formState.studentGroups | orderBy: currentLanguageNameField()">
+                {{currentLanguageNameField(studentGroup)}}
+              </md-option>
+            </md-select>
+          </md-input-container>
+
+          <hois-autocomplete flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-sm="0" flex-offset-xs="0" ng-model="formState.student"
+            ng-disabled="!criteria.studentGroup" ha-controller="directiveControllers" md-selected-item-change="studentChanged()" method="students" name="student"
+            label="{{'report.studentGroupTeacher.student'}}" additional-query-params="{studentGroup: criteria.studentGroup ? [criteria.studentGroup] : []}"></hois-autocomplete>
+        </div>
+
+        <div ng-show="formState.showAllParameters" layout="row" layout-sm="column" layout-xs="column">
+          <md-input-container flex="45" flex-sm="100" flex-xs="100">
+            <label class="textInput">{{'report.studentGroupTeacher.studyYear' | translate}}</label>
+            <hois-select ng-model="criteria.studyYear" values="formState.studyYears"></hois-select>
+          </md-input-container>
+
+          <md-input-container flex="50" flex-sm="100" flex-xs="100" flex-offset="5" flex-offset-sm="0" flex-offset-xs="0">
+            <label class="textInput">{{'report.studentGroupTeacher.studyPeriod' | translate}}</label>
+            <md-select ng-model="formState.studyPeriod" ng-change="studyPeriodChanged()" ng-model-options="{trackBy: '$value.id'}">
+              <md-option md-option-empty></md-option>
+              <md-option ng-value="period" ng-repeat="period in criteria.studyYear ? formState.studyPeriods[criteria.studyYear] : formState.allStudyPeriods | orderBy: currentLanguageNameField()">
+                {{currentLanguageNameField(period)}}
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+
+        <div ng-show="formState.showAllParameters" layout="row">
+          <md-input-container>
+            <label>{{'report.studentGroupTeacher.entriesFrom' | translate}}</label>
+            <md-datepicker ng-model="criteria.from" md-max-date="criteria.thru" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+          </md-input-container>
+          <md-input-container flex-offset="5">
+            <label>{{'report.studentGroupTeacher.entriesThru' | translate}}</label>
+            <md-datepicker ng-model="criteria.thru" md-min-date="criteria.from" hois-datepicker-extension hd-controller="directiveControllers"></md-datepicker>
+          </md-input-container>
+        </div>
+
+        <div ng-show="formState.showAllParameters" layout="row" layout-md="column" layout-sm="column" layout-xs="column">
+          <md-checkbox ng-repeat="entryType in entryTypes | orderBy: getEntryTypeOrderNr" ng-model="criteria.entryType[entryType.code]"
+            ng-change="entryTypeChanged()" aria-label="{{'directive.student.foreign' | translate}}">
+            <span ng-if="getEntryColor(entryType.code)" md-colors="{color: getEntryColor(entryType.code)}">{{currentLanguageNameField(entryType)}}</span>
+            <span ng-if="!getEntryColor(entryType.code)">{{currentLanguageNameField(entryType)}}</span>
+          </md-checkbox>
+        </div>
+
+        <div hide-gt-md>&nbsp;</div>
+
+        <div ng-show="formState.showAllParameters" layout="row" layout-md="column" layout-sm="column" layout-xs="column">
+          <md-checkbox ng-model="criteria.moduleGrade" ng-disabled="criteria.onlyModuleGrades"
+            aria-label="{{'report.studentGroupTeacher.moduleGrade' | translate}}">
+            {{'report.studentGroupTeacher.moduleGrade' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.absencesPerJournals" aria-label="{{'report.studentGroupTeacher.absencesPerJournals' | translate}}">
+            {{'report.studentGroupTeacher.absencesPerJournals' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.journalsWithEntries" ng-disabled="criteria.negativeResults"
+            aria-label="{{'report.studentGroupTeacher.journalsWithEntries' | translate}}">
+            {{'report.studentGroupTeacher.journalsWithEntries' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.negativeResults" ng-change="negativeResultsChanged()"
+            aria-label="{{'report.studentGroupTeacher.negativeResults' | translate}}">
+            {{'report.studentGroupTeacher.negativeResults' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.averageGrade" aria-label="{{'report.studentGroupTeacher.averageGrade' | translate}}">
+            {{'report.studentGroupTeacher.averageGrade' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.weightedAverageGrade" aria-label="{{'report.studentGroupTeacher.showWeightedAverageGrade' | translate}}">
+            {{'report.studentGroupTeacher.showWeightedAverageGrade' | translate}}
+          </md-checkbox>
+        </div>
+
+        <div ng-show="formState.showAllParameters">
+          <md-checkbox ng-model="criteria.onlyModuleGrades" ng-disabled="criteria.allModules" ng-change="onlyModuleGradesChanged()"
+            aria-label="{{'report.studentGroupTeacher.showOnlyModuleGrades' | translate}}">
+            {{'report.studentGroupTeacher.showOnlyModuleGrades' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.allModules" ng-disabled="criteria.allModulesAndOutcomes" ng-change="allModulesChanged()"
+             aria-label="{{'report.studentGroupTeacher.showAllModules' | translate}}">
+            {{'report.studentGroupTeacher.showAllModules' | translate}}
+          </md-checkbox>
+          <md-checkbox ng-model="criteria.allModulesAndOutcomes" ng-change="allModulesAndOutcomesChanged()"
+            aria-label="{{'report.studentGroupTeacher.showAllModulesAndOutcomes' | translate}}">
+            {{'report.studentGroupTeacher.showAllModulesAndOutcomes' | translate}}
+          </md-checkbox>
+        </div>
+
+        <div layout="row" layout-sm="column" layout-xs="column">
+          <md-button class="md-raised md-primary" ng-click="search()">{{'main.button.search' | translate}}</md-button>
+          <md-button class="md-raised" ng-click="clearCriteria()">{{'main.button.clear' | translate}}</md-button>
+          <md-button ng-href="{{pdf(formState.pdfUrl, criteria)}}" class="md-button md-raised"
+            ng-disabled="!criteria.studentGroup || (!criteria.allModules && !criteria.studyYear && !criteria.from)">
+            {{'report.studentGroupTeacher.printPdf' | translate}}</md-button>
+          <md-button ng-href="{{excel(formState.xlsUrl, criteria)}}" class="md-button md-raised"
+            ng-disabled="!criteria.studentGroup || (!criteria.allModules && !criteria.studyYear && !criteria.from)">
+            {{'report.studentGroupTeacher.printXls' | translate}}</md-button>
+          <md-button ng-href="{{pdf(formState.negativeResultsPdfUrl, criteria)}}" class="md-button md-raised"
+            ng-disabled="!criteria.studentGroup || (!criteria.studyYear && !criteria.from)">{{'report.studentGroupTeacher.printNegativeResultsPdf' | translate}}</md-button>
+          <md-button ng-href="{{excel(formState.negativeResultsXlsUrl, criteria)}}" class="md-button md-raised"
+            ng-disabled="!criteria.studentGroup || (!criteria.studyYear && !criteria.from)">{{'report.studentGroupTeacher.printNegativeResultsXls' | translate}}</md-button>
+          <a ng-click="toggleShowAllParameters()" style="margin-top: 20px">
+            {{formState.showAllParameters ? ('main.button.lessParameters' | translate) : ('main.button.moreParameters' | translate)}}
+          </a>
+        </div>
+        <div flex-xs="0" flex-gt-xs="0" flex-gt-sm="50"></div>
+      </form>
+    </fieldset>
+  </div>
+</div>
+<div layout-padding ng-if="record">
+  <div layout="row">
+    <div class="common-label" flex>
+      <i>{{'journal.absencesLegend' | translate}}</i>
+    </div>
+    <div class="common-label" flex>
+      <i>
+        <span>{{'student.statuses.academicLeaveShort' | translate}} - {{'student.statuses.academicLeave' | translate}}, </span>
+        <span>{{'student.statuses.individualCurriculumShort' | translate}} - {{'student.statuses.individualCurriculum' | translate}}, </span>
+        <span>{{'student.statuses.exmatriculatedShort' | translate}} - {{'student.statuses.exmatriculated' | translate}}, </span>
+        <span>{{'student.statuses.finishedShort' | translate}} - {{'student.statuses.finished' | translate}}</span>
+      </i>
+    </div>
+  </div>
+  <div flex class="student-group-teacher-container">
+    <div class="container" fixed-column-table fixed-columns="1" resize-table search-criteria-height="{{formState.showAllParameters ? 550 : 350}}">
+      <div ng-if="!record.showModuleResultTable" ng-include="'report/templates/studentgroup.teacher.table.html'"></div>
+      <div ng-if="record.showModuleResultTable" ng-include="'report/templates/studentgroup.teacher.module.table.html'"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Mozilla Firefox Bug 688556: `border-collapse: collapse` shows a table without borders (if there is position relative or transform on cells) */
+  @-moz-document url-prefix() {
+    table {
+        border-collapse: separate !important;
+    }
+  }
+</style>

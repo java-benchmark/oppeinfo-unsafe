@@ -1,0 +1,36 @@
+<div ng-include="'practiceEnterprise/practice.enterprise.navbar.html'"></div>
+
+<div layout-padding>
+    <div flex>
+        <md-table-container>
+            <table md-table md-progress="tabledata.$promise" class="secondary-table">
+                <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+                <tr md-row>
+                    <th md-column md-order-by="esl.name_et">{{'enterprise.locationsTab.name' | translate}}</th>
+                    <th md-column>{{'enterprise.locationsTab.language' | translate}}</th>
+                    <th md-column>{{'enterprise.locationsTab.country' | translate}}</th>
+                    <th md-column>{{'enterprise.locationsTab.address' | translate}}</th>
+                </tr>
+                </thead>
+                <tbody md-body>
+                <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+                    <td md-cell>{{row.nameEt ? row.nameEt : '-'}}</td>
+                    <td md-cell>{{row.language ? currentLanguageNameField(row.language) : '-'}}</td>
+                    <td md-cell>{{row.country ? currentLanguageNameField(row.country) : '-'}}</td>
+                    <td md-cell>{{row.address ? row.address : '-'}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" 
+    md-total="{{tabledata.totalElements}}"
+    md-on-paginate="loadData" 
+    md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}"
+    md-page-select>
+    </md-table-pagination>
+    </div>
+</div>
+<div ng-if="auth.isAdmin() || auth.isLeadingTeacher()" layout="row" layout-xs="column">
+    <md-button ng-if="isAuthorized('ROLE_OIGUS_M_TEEMAOIGUS_ETTEVOTE')" class="md-raised md-primary" ng-href="#/practice/enterprise/{{::enterprise.id}}/{{::enterprise.enterpriseSchoolId}}/locations/edit">{{'main.button.change' | translate}}</md-button>
+    <md-button class="md-raised" ng-click="back('#/practice/enterprise')">{{'main.button.back' | translate}}</md-button>
+</div>

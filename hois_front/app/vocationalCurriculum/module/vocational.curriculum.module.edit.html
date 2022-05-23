@@ -1,0 +1,339 @@
+<div class="ois-form-layout-padding nomargin">
+  
+  <form name="replaceModuleForm" layout="column" ng-show="showReplaceMenu">
+    <div class="form-readonly" layout="column">
+      <md-input-container flex>
+        <label>{{'basemodule.curriculum' | translate}}</label>
+        <hois-value class="textInput" value="currentLanguageNameField(curriculum)"></hois-value>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.' + currentLanguageNameVariable() | translate}}</label>
+        <hois-value class="textInput" value="currentLanguageNameField(module)"></hois-value>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.credits' | translate}}</label>
+        <hois-value class="textInput" value="module.credits"></hois-value>
+      </md-input-container>
+    </div>
+    <div flex>
+      <md-autocomplete
+        name="baseModuleTemplate"
+        md-selected-item-change="getReplaceForm(bModule)"
+        md-selected-item="baseModuleTemplate"
+        md-search-text="baseModuleNameTemplate"
+        md-items="bModule in searchBaseModule(baseModuleNameTemplate)"
+        md-item-text="currentLanguageNameField(bModule)"
+        md-min-length="1"
+        md-floating-label="{{'basemodule.label' | translate}}"
+        md-no-cache
+        required
+        md-require-match
+        class="small-margin"
+        flex>
+        <md-item-template>
+            <span md-highlight-text="bModule" md-highlight-flags="^i">{{currentLanguageNameField(bModule)}}</span>
+        </md-item-template>
+        <md-not-found>
+            {{'main.messages.error.notFound' | translate}}
+        </md-not-found>
+      </md-autocomplete>
+    </div>
+    <p class="md-body-1" ng-show="replaceModuleForm.showNotEnoughOutcomesError" style="color: #dd2c00; margin: 3px;">{{'basemodule.warning.notEnoughOutcomes' | translate}}</p>
+    <div flex ng-show="replaceBaseModuleForm.outcomes">
+      <fieldset tabindex="0">
+        <legend md-colors="{color: 'default-primary-800'}" class="md-title-small">{{'basemodule.studyOutcome' | translate}}</legend>
+        <p class="md-body-1" ng-show="replaceModuleForm.showOneToOneOutcomeError" style="color: #dd2c00; margin: 3px;">{{'basemodule.warning.oneToOneOutcome' | translate}}</p>
+        <div layout="column">
+          <div layout="row" ng-repeat="outcome in replaceBaseModuleForm.outcomes | orderBy: '+id'">
+            <p class="md-body-1" flex style="text-align: end; overflow-wrap: break-word; word-wrap: break-word;">{{currentLanguageNameField(outcome)}}</p>
+            <md-input-container  flex="50" flex-offset="10">
+              <label>{{'basemodule.baseModuleOutcome' | translate}}</label>
+              <md-select ng-model="replaceBaseModuleForm.connectionsOutcome[outcome.id]" required ng-change="selectChangeOutcome(outcome.id, replaceBaseModuleForm.connectionsOutcome[outcome.id])" ng-model-options="{trackBy: '$value.id'}">
+                <md-option ng-value="bOutcome" ng-repeat="bOutcome in replaceBaseModuleForm.baseModuleOutcomes | orderBy: '+id'">{{currentLanguageNameField(bOutcome)}}</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div flex ng-show="replaceBaseModuleForm.themes && replaceBaseModuleForm.outcomes">
+      <fieldset tabindex="1">
+        <legend md-colors="{color: 'default-primary-800'}" class="md-title-small">{{'basemodule.themes' | translate}}</legend>
+        <p class="md-body-1" ng-show="replaceModuleForm.showOneToOneThemeError" style="color: #dd2c00; margin: 3px;">{{'basemodule.warning.oneToOneTheme' | translate}}</p>
+        <div layout="column" ng-repeat="oModule in replaceBaseModuleForm.occupationModules | orderBy: '+id'">
+          <md-checkbox ng-model="oModule.enabled" aria-label="Enabled?" ng-disabled="!replaceBaseModuleForm.themes[oModule.id]">{{currentLanguageNameField(oModule)}}</md-checkbox>
+          <p class="md-body-1" style="color: #dd2c00; margin-top: 0px;" ng-if="!replaceBaseModuleForm.themes[oModule.id]">{{'basemodule.warning.tooManyThemes' | translate}}</p>
+          <div ng-if="oModule.enabled" flex>
+            <div layout="row" ng-repeat="theme in replaceBaseModuleForm.themes[oModule.id] | orderBy: '+id'">
+              <p class="md-body-1" flex style="text-align: end; overflow-wrap: break-word; word-wrap: break-word;">{{currentLanguageNameField(theme)}}</p>
+              <md-input-container  flex="50" flex-offset="10">
+                <label>{{'basemodule.baseModuleTheme' | translate}}</label>
+                <md-select ng-model="replaceBaseModuleForm.connections[theme.id]" required ng-change="selectChange(oModule.id, theme.id, replaceBaseModuleForm.connections[theme.id])" ng-model-options="{trackBy: '$value.id'}">
+                  <md-option ng-value="bTheme" ng-repeat="bTheme in replaceBaseModuleForm.baseModuleThemes | orderBy: '+id'">{{currentLanguageNameField(bTheme)}}</md-option>
+                </md-select>
+              </md-input-container>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div layout="row" flex>
+      <md-button class="md-primary md-raised" ng-click="replace()">{{'main.button.replace' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="switchView(false)">{{'main.button.back' | translate}}</md-button>
+    </div>
+  </form>
+  
+  <form ng-cloak name="vocationalCurriculumModuleForm" ng-show="!showReplaceMenu">
+    <div layout="column" ng-cloak>
+      <div layout="column" flex layout-gt-sm="row">
+        <md-radio-group class="md-primary base-module-menu" ng-model="moduleType" ng-change="radioChange()"
+          layout="row" layout-align-gt-sm="center center" ng-disabled="baseModuleUsed || module.id">
+          <md-radio-button ng-value="moduleTypes.NEW_MODULE" aria-label="Uus moodul">
+            {{'basemodule.newModule' | translate}}
+          </md-radio-button>
+          <md-radio-button ng-value="moduleTypes.BASE_MODULE" aria-label="Baasmoodul">
+            {{'basemodule.label' | translate}}
+          </md-radio-button>
+        </md-radio-group>
+        <div layout="row" flex ng-show="moduleType === moduleTypes.NEW_MODULE">
+          <md-button class="md-raised" ng-show="module.id && !baseModuleUsed" ng-click="switchView(true)">{{'basemodule.operation.replace.label' | translate}}</md-button>
+        </div>
+        <div layout="row" flex ng-show="baseModuleUsed">
+          <md-button class="md-raised" ng-click="releaseModule()">{{'basemodule.operation.release.label' | translate}}</md-button>
+        </div>
+      </div>
+      <div flex ng-show="moduleType === moduleTypes.BASE_MODULE">
+        <md-autocomplete
+          name="baseModule"
+          md-selected-item-change="getBaseModule(bModule)"
+          md-selected-item="baseModule"
+          md-search-text="baseModuleName"
+          md-items="bModule in searchBaseModule(baseModuleName)"
+          md-item-text="currentLanguageNameField(bModule)"
+          md-min-length="3"
+          md-floating-label="{{'basemodule.label' | translate}}"
+          md-no-cache
+          class="small-margin"
+          ng-required="moduleType === moduleTypes.BASE_MODULE"
+          md-require-match="moduleType === moduleTypes.BASE_MODULE"
+          ng-disabled="baseModuleUsed"
+          flex>
+          <md-item-template>
+              <span md-highlight-text="bModule" md-highlight-flags="^i">{{currentLanguageNameField(bModule)}}</span>
+          </md-item-template>
+          <md-not-found>
+              {{'main.messages.error.notFound' | translate}}
+          </md-not-found>
+        </md-autocomplete>
+      </div>
+
+      <fieldset tabindex="1" ng-if="module.canHaveOccupations">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{module.occupation ? 'module.occupationPartOccupationSpecialize' : 'module.partOccupation' | translate}}</legend>
+        <div layout="column">
+            <div ng-repeat="item in module.curriculumOccupations | orderBy: 'occupation'">
+                <md-checkbox ng-model="occupationsSelected[item.occupation]" ng-change="validateOccupations()"
+              >
+              <hois-classifier-value ng-model="item.occupation" main-classifier-codes="KUTSE,OSAKUTSE" class="inline" show-date></hois-classifier-value>
+            </md-checkbox>
+            <div layout="column">
+              <div ng-repeat="partOccupation in item.partOccupations | orderBy" flex layout="row">
+                <div flex="5">&nbsp;</div>
+                <md-checkbox ng-model="occupationsSelected[partOccupation]" ng-change="validateOccupations()">
+                  <hois-classifier-value ng-model="partOccupation" main-classifier-code="OSAKUTSE" class="inline" show-date></hois-classifier-value>
+                  ({{'stateCurriculum.enter.occupation.partial' | translate}})
+                </md-checkbox>
+              </div>
+            </div>
+
+            <div layout="column">
+              <div ng-repeat="speciality in item.specialities | orderBy" layout="row">
+                <div flex="5">&nbsp;</div>
+                <md-checkbox ng-model="specialitiesSelected[speciality]" ng-change="validateOccupations()">
+                  <hois-classifier-value ng-model="speciality" main-classifier-code="SPETSKUTSE" class="inline" show-date></hois-classifier-value>
+                  ({{'stateCurriculum.enter.occupation.specialty' | translate}})
+                </md-checkbox>
+              </div>
+            </div>
+          </div>
+        </div>
+        <md-input-container hide>
+          <input ng-model="occupationsValid" type="text" required>
+        </md-input-container>
+        <p ng-show="vocationalCurriculumModuleForm.$submitted && !occupationsValid" class="invalid">{{'curriculum.error.moduleOccupations' | translate}}</p>
+      </fieldset>
+      <div>&nbsp;</div>
+      <div layout="row" flex>
+        <md-input-container flex="45">
+          <label>{{'module.type' | translate}}</label>
+          <hois-classifier-select name="module" ng-model="module.module" show-only-values="possibleTypes" main-classifier-code="KUTSEMOODUL" criteria="{vocational: true}"
+            required ng-disabled="module.id && !module.basicDataCanBeEdited" only-valid ignore-preselected model-value-attr="code"></hois-classifier-select>
+        </md-input-container>
+        <md-input-container flex="10" flex-sm="25" flex-xs="25" flex-offset="5">
+          <label>{{'module.credits' | translate}}</label>
+          <input ng-model="module.credits" type="number" name="credits" min="0" max="999" pattern="^\d+(\.\d{1})?$" required ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE">
+          <div ng-messages="vocationalCurriculumModuleForm.credits.$error" ng-show="vocationalCurriculumModuleForm.credits.$dirty">
+            <div ng-message="min">
+              {{'main.messages.error.positive' | translate}}
+            </div>
+            <div ng-message="max">
+              {{'curriculum.error.max999' | translate}}
+            </div>
+            <div ng-message="pattern">
+              {{'stateCurriculum.error.decimalPresision' | translate}}
+            </div>
+          </div>
+        </md-input-container>
+        <md-input-container flex="10" flex-sm="20" flex-xs="20" flex-offset="5">
+          <label>{{'module.orderNr' | translate}}</label>
+          <input ng-model="module.orderNr" type="number" name="orderNr" min="0" max="32767" pattern="^\d+?$">
+          <div ng-messages="vocationalCurriculumModuleForm.orderNr.$error" ng-show="vocationalCurriculumModuleForm.orderNr.$dirty">
+            <div ng-message="min">
+              {{'main.messages.error.positive' | translate}}
+            </div>
+            <div ng-message="max">
+              {{'main.messages.error.max' | translate: {max: 32767} }}
+            </div>
+          </div>
+        </md-input-container>
+      </div>
+      <md-input-container flex>
+        <label>{{'module.nameEt' | translate}}</label>
+        <input ng-model="module.nameEt" type="text" md-maxlength="255" required ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE">
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.nameEn' | translate}}</label>
+        <input ng-model="module.nameEn" type="text" md-maxlength="255" ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE">
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.objectivesEt' | translate}}</label>
+        <textarea ng-model="module.objectivesEt" md-maxlength="10000" max-rows="10" required ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE"></textarea>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.objectivesEn' | translate}}</label>
+        <textarea ng-model="module.objectivesEn" md-maxlength="10000" max-rows="10" ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE"></textarea>
+      </md-input-container>
+      <fieldset tabindex="4">
+        <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'module.studyOutcome' | translate}} *</legend>
+        <input style="display:none" type="number" readonly name="outcomesLength" ng-model="module.outcomes.length" min="1" />
+        <div class="invalid" ng-if="vocationalCurriculumModuleForm.$submitted" ng-messages="vocationalCurriculumModuleForm.outcomesLength.$error">
+          <div ng-message="min">{{'main.messages.error.atLeastOneShouldBeAdded' | translate}}</div>
+        </div>
+        <div layout="row" flex ng-show="!(module.baseModule || moduleType === moduleTypes.BASE_MODULE)">
+          <md-input-container flex="45">
+            <label>{{'studyOutcome.nameEt' | translate}} *</label>
+            <textarea ng-model="outcomeEt" md-maxlength="1000" max-rows="10"></textarea>
+          </md-input-container>
+          <md-input-container flex="40" flex-offset="5">
+            <label>{{'studyOutcome.nameEn' | translate}}</label>
+            <textarea ng-model="outcomeEn" md-maxlength="1000" max-rows="10"></textarea>
+          </md-input-container>
+          <md-button class="md-primary" ng-click="addOutcome()" ng-if="!isEditingOutcome">{{'main.button.add' | translate}}</md-button>
+          <md-button class="md-primary" ng-click="saveOutcome()" ng-if="isEditingOutcome">{{'main.button.change' | translate}}</md-button>
+        </div>
+        <div layout="column">
+          <div ng-repeat="item in module.outcomes track by $index" class="occupation-row align-center" layout="row" flex>
+            <div flex="45">
+              <a ng-click="editOutcome(item)" ng-show="!(module.baseModule || moduleType === moduleTypes.BASE_MODULE)">
+                <p class="scrollable">{{item.outcomeEt}}</p>
+              </a>
+              <p class="scrollable" ng-show="module.baseModule || moduleType === moduleTypes.BASE_MODULE">{{item.outcomeEt}}</p>
+            </div>
+            <div flex="40" flex-offset="5">
+              <a ng-click="editOutcome(item)" ng-show="!(module.baseModule || moduleType === moduleTypes.BASE_MODULE)">
+                <p class="scrollable">{{item.outcomeEn}}</p>
+              </a>
+              <p class="scrollable" ng-show="module.baseModule || moduleType === moduleTypes.BASE_MODULE">{{item.outcomeEn}}</p>
+            </div>
+            <div ng-show="!(module.baseModule || moduleType === moduleTypes.BASE_MODULE)" layout="row" layout-align="center center">
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+              <div>
+                <a class="remove" ng-click="removeFromArray(module.outcomes, item)">&times;&nbsp;&nbsp;</a>
+              </div>
+              <div>
+                <p ng-if="$first" class="link-disabled">&#9650;&nbsp;</p>
+                <a ng-if="!$first" class="link-no-underline" ng-click="swap($index, $index - 1)">&#9650;&nbsp;</a>
+              </div>
+              <div>
+                <p ng-if="$last" class="link-disabled">&#9660;&nbsp;</p>
+                <a ng-if="!$last" class="link-no-underline" ng-click="swap($index, $index + 1)">&#9660;&nbsp;</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <div>&nbsp;</div>
+      <md-input-container flex>
+        <label>{{'stateCurriculum.enter.module.criteriaEt' | translate}}</label>
+        <textarea ng-model="module.assessmentsEt" required md-maxlength="20000" max-rows="10" ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE"></textarea>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'stateCurriculum.enter.module.criteriaEn' | translate}}</label>
+        <textarea ng-model="module.assessmentsEn" md-maxlength="20000" max-rows="10" ng-readonly="module.baseModule || moduleType === moduleTypes.BASE_MODULE"></textarea>
+      </md-input-container>
+      <md-input-container flex>
+        <label>{{'module.competencesAquired' | translate}}</label>
+        <md-select multiple="true" ng-model="module.competences" ng-disabled="module.module !== 'KUTSEMOODUL_P' || competences.length === 0">
+          <md-option ng-repeat="option in competences | orderBy: currentLanguageNameField() track by $index" ng-value="option.code"
+            aria-label="{{currentLanguageNameField(option)}}">
+            {{currentLanguageNameField(option)}}</md-option>
+        </md-select>
+      </md-input-container>
+
+      <!-- <md-input-container flex>
+        <label>{{'module.competencesAquired' | translate}}</label>
+        <hois-select ng-model="module.competences" values="studyPeriods"
+        ng-disabled="module.module !== 'KUTSEMOODUL_P' || competences.length === 0"
+        valueProperty="code"></hois-select>
+      </md-input-container> -->
+
+        <!-- <md-input-container flex>
+          <label>{{'module.competencesAquired' | translate}}</label>
+          <hois-classifier-select  ng-model="module.competences" show-only-values="competences" main-classifier-code="KOMPETENTS"
+          ng-disabled="module.module !== 'KUTSEMOODUL_P' || competences.length === 0" model-value-attr="code"></hois-classifier-select>
+        </md-input-container> -->
+
+      <br/>
+      <md-input-container flex>
+        <md-checkbox ng-model="module.practice" ng-disabled="module.module === 'KUTSEMOODUL_L'">{{'module.practice' | translate}}</md-checkbox>
+      </md-input-container>
+      <md-input-container>
+        <md-checkbox ng-model="module.isAdditional"
+          aria-label="{{'stateCurriculum.enter.module.isAdditional' | translate}}">
+          {{'stateCurriculum.enter.module.isAdditional' | translate}}
+        </md-checkbox>
+      </md-input-container>
+    </div>
+    <span flex></span>
+    <md-button class="md-raised md-primary" ng-click="save()">{{"main.button.save" | translate}}</md-button>
+    <md-button class="md-raised" ng-click="delete()" ng-if="module.id && !module.addedToImplementationPlan">{{"main.button.delete" | translate}}</md-button>
+    <md-button class="md-raised" ng-click="back('#/vocationalCurriculum/' + curriculumId + '/edit', vocationalCurriculumModuleForm)">{{"main.button.back" | translate}}</md-button>
+  </form>
+</div>
+<style>
+  .link-no-underline {
+    text-decoration: none;
+  }
+
+  .link-disabled {
+    color: #d7dde5;
+  }
+  .base-module-menu {
+    padding-right: 10px;
+    padding-bottom: 5px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+  @media screen and (min-width: 960px) {
+    .base-module-menu {
+      height: 36px;
+    }
+  }
+  .form-readonly > md-input-container {
+    margin-bottom: 18px !important;
+  }
+  .md-select-menu-container {
+    max-width: -moz-calc(100vw - 1em);
+    max-width: -webkit-calc(100vw - 1em);
+    max-width: calc(100vw - 1em);
+  }
+</style>

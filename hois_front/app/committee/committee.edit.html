@@ -1,0 +1,107 @@
+<div class="ois-form-layout-padding" ng-cloak>
+
+  <form layout="column" name="committeeEditForm">
+
+    <div layout="row" ng-if="showName">
+      <md-input-container flex>
+        <label>{{'committee.name' | translate}}</label>
+        <input type="text" ng-model="record.nameEt" md-maxlength="255">
+      </md-input-container>
+    </div>
+    <div layout="row" layout-sm="column" layout-xs="column">
+      <md-input-container flex>
+        <label>{{'committee.addInfo' | translate}}</label>
+        <textarea ng-model="record.addInfo" md-maxlength="4000" max-rows="10"></textarea>
+      </md-input-container>
+    </div>
+    <div layout="row">
+      <div layout="column" flex="45">
+        <label class="common-label">{{'committee.validDate' | translate}}</label>
+        <div layout="row" layout-sm="column" layout-xs="column" >
+          <md-input-container flex flex-sm="100" flex-xs="100">
+            <label>{{'main.from' | translate}}</label>
+            <md-datepicker ng-model="record.validFrom" md-max-date="record.validThru" required></md-datepicker>
+          </md-input-container>
+          <md-input-container flex flex-sm="100" flex-xs="100" flex-offset-xs="0" flex-offset-sm="0" flex-offset="5">
+            <label>{{'main.thru' | translate}}</label>
+            <md-datepicker ng-model="record.validThru" md-min-date="record.validFrom" required></md-datepicker>
+          </md-input-container>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="committeeType === 'KOMISJON_T'">
+      <div layout="row" flex="100">
+        <hois-autocomplete flex ng-model="formState.curriculum" method="curriculums" label="committee.curriculums"
+          md-selected-item-change="curriculumSelected()"></hois-autocomplete>
+      </div>
+      <div layout="column" class="common-label" flex="95" ng-repeat="curriculum in record.curriculums">
+        <div layout="row" flex layout-align="start center">
+          <div flex="5">&nbsp;</div>
+          <div flex="50">{{curriculum.nameEt}}</div>
+          <div>
+            <a ng-click="deleteCurriculum(curriculum)" class="remove">&times;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend md-colors="{color: 'primary-800'}" class="md-title-small">{{'committee.memberIs' | translate}}</legend>
+      <div layout="row">
+        <md-button class="md-raised" ng-click="addMember()">{{'committee.addMember' | translate}}</md-button>
+      </div>
+      <md-table-container>
+        <table md-table class="secondary-table">
+          <thead md-head>
+            <tr md-row>
+              <th md-column>{{'committee.isChairman' | translate}}</th>
+              <th md-column ng-if="allowExternalPerson">{{'committee.external' | translate}}</th>
+              <th md-column>{{'committee.member' | translate}}</th>
+              <th md-column></th>
+            </tr>
+          </thead>
+          <tbody md-body>
+            <tr md-row ng-repeat="member in record.members" ng-class-odd="'odd'" ng-class-even="'even'">
+              <ng-form name="committeeMemberForm">
+                <td md-cell>
+                  <md-checkbox ng-model="member.isChairman" ng-change="assingChairman(member)"
+                          aria-label="{{'committee.isChairman' | translate}} {{member.memberName}}">
+                  </md-checkbox>
+                </td>
+                <td md-cell ng-if="allowExternalPerson">
+                  <md-checkbox ng-model="member.isExternal" ng-change="clearMember(member)"
+                          aria-label="{{'committee.external' | translate}} {{member.memberName}}">
+                  </md-checkbox>
+                </td>
+                <td md-cell>
+                  <div layout="row" ng-if="member.isExternal" flex="100">
+                    <md-input-container flex>
+                      <input type="text" ng-model="member.memberName" md-maxlength="100" aria-label="{{'committee.name' | translate}} {{member.memberName}}" required>
+                    </md-input-container>
+                  </div>
+                  <div layout="column" ng-if="!member.isExternal && !showPersonSearch">
+                    <md-input-container flex>
+                      <hois-select ng-model="member.teacher" type="teacher" criteria="{valid: true, selectedTeacherId: member.teacher}"
+                        aria-label="{{'committee.name' | translate}} {{member.memberName}}" required></hois-select>
+                    </md-input-container>
+                  </div>
+                  <div layout="column" ng-if="!member.isExternal && showPersonSearch">
+                    <hois-autocomplete flex ng-model="member.person" method="committeeMembers" no-paging="true" label="committee.member" aria-label="{{'committee.member' | translate}} {{member.memberName}}" required></hois-autocomplete>
+                  </div>
+                </td>
+                <td md-cell><a class="remove nomargin" ng-click="removeMember(member)">&times;</a></td>
+              </ng-form>
+            </tr>
+          </tbody>
+        </table>
+      </md-table-container>
+    </fieldset>
+    <div>&nbsp;</div>
+    <div>
+      <md-button class="md-raised md-primary" ng-click="save()">{{'main.button.save' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="delete()" ng-if="record.id">{{'main.button.delete' | translate}}</md-button>
+      <md-button class="md-raised" ng-click="back('#/committees/' + committeeType, committeeEditForm)">{{'main.button.back' | translate}}</md-button>
+    </div>
+  </form>
+</div>

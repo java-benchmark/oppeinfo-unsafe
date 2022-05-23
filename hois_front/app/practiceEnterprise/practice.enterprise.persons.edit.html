@@ -1,0 +1,49 @@
+<div ng-include="'practiceEnterprise/practice.enterprise.navbar.html'"></div>
+
+<div layout-padding>
+    <div flex>
+        <md-table-container>
+            <table md-table md-progress="tabledata.$promise" class="secondary-table">
+                <thead md-head md-order="criteria.order" md-on-reorder="loadData">
+                <tr md-row>
+                    <th md-column md-order-by="esp.firstname, esp.lastname">{{'enterprise.personsTab.name' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.phone' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.email' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.personIdCode' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.personIdCodeCountry' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.proffession' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.mentor' | translate}}</th>
+                    <th md-column>{{'enterprise.personsTab.contactPerson' | translate}}</th>
+                    <th md-column></th>
+                </tr>
+                </thead>
+                <tbody md-body>
+                <tr md-row ng-repeat="row in tabledata.content" ng-class-odd="'odd'" ng-class-even="'even'">
+                    <td md-cell><a ng-click="viewPerson(row)">{{row.firstname + ' ' +  row.lastname}}</a></td>
+                    <td md-cell>{{row.phone ? row.phone : '-'}}</td>
+                    <td md-cell>{{row.email ? row.email : '-'}}</td>
+                    <td md-cell>{{row.idcode ? row.idcode : '-'}}</td>
+                    <td md-cell>{{row.country ? currentLanguageNameField(row.country) : '-'}}</td>
+                    <td md-cell>{{row.position ? row.position : '-'}}</td>
+                    <td md-cell>{{row.supervisor ? ('main.yes' | translate) : ('main.no' | translate)}}</td>
+                    <td md-cell>{{row.contact ? ('main.yes' | translate) : ('main.no' | translate)}}</td>
+                    <td md-cell>
+                    <md-button md-no-ink class="md-primary change-button" 
+                        ng-click="addNewPerson(row)">{{'main.button.change' | translate}}</md-button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+    <md-table-pagination md-limit="criteria.size" md-limit-options="[10, 20, 50]" md-page="criteria.page" 
+    md-total="{{tabledata.totalElements}}"
+    md-on-paginate="loadData" 
+    md-label="{page: '{{'main.page' | translate}}:', rowsPerPage: '{{'main.rowPerPage' | translate}}:', of: '{{'main.of' | translate}}'}"
+    md-page-select>
+    </md-table-pagination>
+    </div>
+</div>
+<div ng-if="auth.isAdmin() || auth.isLeadingTeacher()" layout="row" layout-xs="column">
+    <md-button class="md-raised" ng-click="back('#/practice/enterprise')">{{'main.button.back' | translate}}</md-button>
+    <md-button class="md-raised" ng-click="addNewPerson()">{{'enterprise.personsTab.addNew' | translate}}</md-button>
+</div>

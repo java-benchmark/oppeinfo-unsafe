@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Diploma supplement</title>
+    <style type="text/css">
+      {% include "diploma.supplement.css" %}
+    </style>
+  </head>
+  <body>
+    <div id="footer">
+        <span id="pagenumber"/>/<span id="pagecount"/>
+    </div>
+   	{% if content.duplicate %}
+   	<div style="float: right; text-transform: uppercase; font-weight: bold;">{{ "diploma.duplicate" | translate }}</div>
+   	{% endif %}
+    <div class="padding-top-en"></div>
+    <div class="school-name">{{ content.schoolName }}</div>
+    <div class="school-name-en">{{ content.schoolNameEn }}</div>
+    <div class="diploma-nr-en">
+        {{ "diploma.diplomaNr" | translate }} {{ content.diplomaNr }}{% if content.additionalNrs is not empty %}, {{ "diploma.additionalPages" | translate }} {{ content.additionalNrs | join(', ') }}{% endif %}
+    </div>
+    <div class="supplement-description">{{ "diploma.supplementDescription" | translate }}</div>
+    <h1>1. {{ "diploma.qualificationPerson" | translate }}</h1>
+    <table class="general-info">
+        <tbody>
+            <tr><td>1.1. {{ "diploma.qualificationPerson.lastname" | translate }}:</td><td>{{ content.lastname }}</td></tr>
+            <tr><td>1.2. {{ "diploma.qualificationPerson.firstname" | translate }}:</td><td>{{ content.firstname }}</td></tr>
+            <tr><td>1.3. {{ "diploma.qualificationPerson.birthdate" | translate }}:</td><td>{{ content.birthdate | hoisDate }}</td></tr>
+            <tr>
+                <td>1.4. {{ "diploma.qualificationPerson.idcode" | translate }}:</td>
+                <td>{{ content.idcode is not empty ? content.idcode : "diploma.qualificationPerson.idcode.missing" | translate }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <h1>2. {{ "diploma.qualification" | translate }}</h1>
+    <table class="general-info">
+        <tbody>
+            <tr><td>2.1. {{ "diploma.qualification.name" | translate }}:</td><td>{{ content.final21 }}</td></tr>
+            <tr>
+                <td>2.2. {{ "diploma.qualification.curriculum" | translate }}:</td>
+                <td>
+                    {{ content.curriculumName }} ({{ "diploma.code" | translate }} {{ content.merCode }})
+                    <br/>{{ "diploma.qualification.curriculum.ehis" | translate }} {{ content.curriculumMerRegDate | hoisDate }}
+                    {% if content.specialityName is not empty %}
+                        <br/>{{ content.specialityName }} ({{ "diploma.qualification.curriculum.speciality" | translate }})
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>2.3. {{ "diploma.qualification.diplomaSchool" | translate }}:</td>
+                <td>{{ content.schoolName }}, {{ content.schoolType }}</td>
+            </tr>
+            <tr><td>2.4. {{ "diploma.qualification.studySchool" | translate }}:</td><td>{{ "diploma.qualification.studySchool.value" | translate }}</td></tr>
+            <tr><td>2.5. {{ "diploma.qualification.studyLanguage" | translate }}:</td><td>{{ content.studyLanguageName }}</td></tr>
+        </tbody>
+    </table>
+    <h1>3. {{ "diploma.qualificationLevel" | translate }}</h1>
+    <table class="general-info">
+        <tbody>
+            <tr><td>3.1. {{ "diploma.qualificationLevel.level" | translate }}:</td><td>{{ content.final31 }}</td></tr>
+            <tr>
+                <td>3.2. {{ "diploma.qualificationLevel.studyPeriod" | translate }}:</td>
+                <td>
+                    {% if content.studyYears > 0 %}{{ content.studyYears }} {{ "years" | translate }}{% endif %}{% if content.studyMonths > 0 %} {{ content.studyMonths }} {{ "months" | translate }}{% endif %},
+                    {{ content.credits }} {{ "diploma.qualificationLevel.eap" | translate }}
+                </td>
+            </tr>
+            <tr><td>3.3. {{ "diploma.qualificationLevel.admissionRequirements" | translate }}:</td><td>{{ content.final33 }}</td></tr>
+        </tbody>
+    </table>
+    <h1>4. {{ "diploma.curriculumAndResults" | translate }}</h1>
+    <table class="general-info">
+        <tbody>
+            <tr>
+                <td>4.1. {{ "diploma.curriculumAndResults.studyLoad" | translate }}:</td>
+                <td>
+                    {% if content.studyLoadName is not empty %}
+                    {{ content.studyLoadName }}
+                    {% else %}
+                    unspecified
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>4.2. {{ "diploma.curriculumAndResults.graduationRequirements" | translate }}:</td>
+                <td>Completion of {{ content.credits }} ECTS credits programme, {{ content.curriculumCompletion }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="underline">{{ "diploma.outcomes" | translate }}:</div>
+    <div>{{ content.outcomes }}</div>
+    <div class="margin-top">4.3. {{ "diploma.curriculumAndResults.results" | translate }}:</div>
+    <table class="study-results margin-top">
+        <thead class="page-break-after-avoid">
+            <tr>
+                <th>
+                    {% if content.modulesGraded %}
+                    {{ "diploma.curriculumAndResults.results.subjectModule" | translate }}
+                    {% else %}
+                    {{ "diploma.curriculumAndResults.results.subject" | translate }}
+                    {% endif %}
+                </th>
+                <th>{{ "diploma.curriculumAndResults.results.credits" | translate }}</th>
+                <th>{{ "diploma.curriculumAndResults.results.date" | translate }}</th>
+                <th>{{ "diploma.curriculumAndResults.results.result" | translate }}</th>
+                <th>{% if content.showTeacher %}{{ "diploma.curriculumAndResults.results.teacher" | translate }}{% endif %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for result in content.studyResults %}
+            <tr>
+                <td>{{ result.subjectCode != null ? result.subjectCode + " " : "" }}{{ result.name }}</td>
+                <td class="study-results-credits">{{ result.credits }}</td>
+                <td class="study-results-date">{{ result.gradeDate | hoisDate }}</td>
+                <td class="study-results-grade">
+                    {{ ("P" == result.grade and content.isLetterGrades) or ("A" == result.grade and content.isLetterGrades == false) ? result.gradeName : result.grade }}
+                </td>
+                <td>{{ result.teacher }}</td>
+            </tr>
+        {% endfor %}
+        {% for result in content.finalThesis %}
+            <tr>
+                <td class="label">{{ "diploma.curriculumAndResults.results.finalThesis" | translate }}:</td>
+                <td colspan="4">{{ result.name }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="study-results-credits">{{ result.credits }}</td>
+                <td class="study-results-date">{{ result.gradeDate | hoisDate }}</td>
+                <td class="study-results-grade">
+                    {{ ("P" == result.grade and content.isLetterGrades) or ("A" == result.grade and content.isLetterGrades == false) ? result.gradeName : result.grade }}
+                </td>
+                <td>{{ result.teacher }}</td>
+            </tr>
+        {% endfor %}
+        {% for result in content.finalResults %}
+            <tr>
+                <td class="label">{{ "diploma.curriculumAndResults.results.finalExam" | translate }}:</td>
+            </tr>
+            <tr>
+                <td>{{ result.subjectCode != null ? result.subjectCode + " " : "" }}{{ result.name }}</td>
+                <td class="study-results-credits">{{ result.credits }}</td>
+                <td class="study-results-date">{{ result.gradeDate | hoisDate }}</td>
+                <td class="study-results-grade">
+                    {{ ("P" == result.grade and content.isLetterGrades) or ("A" == result.grade and content.isLetterGrades == false) ? result.gradeName : result.grade }}
+                </td>
+                <td>{{ result.teacher }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="margin-top">
+        <div>{{ "diploma.totalSubjectCredits" | translate }}: {{ content.totalCredits }}</div>
+        <div>{{ "diploma.curriculumAndResults.results.averageGrade" | translate }}: {{ content.averageMark }}</div>
+    </div>
+    <div class="margin-top">
+    {% for apel in content.apels %}
+        <div>
+            *{{ loop.index + 1 }}
+            {% if apel.isFormal %}
+            {{ apel.name }}
+            {% else %}
+            {{ "diploma.curriculumAndResults.results.apel" | translate }}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="margin-top">4.4. {{ "diploma.curriculumAndResults.evaluationDescription" | translate }}:</div>
+    <div class="page-break-avoid margin-top">
+        <table class="evaluation-description">
+            <thead>
+                <tr>
+                    <th>{{ "diploma.curriculumAndResults.evaluationDescription.grade" | translate }}</th>
+                    <th>{{ "diploma.curriculumAndResults.evaluationDescription.description" | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ content.isLetterGrades ? 'A' : 5 }}</td>
+                    <td>{{ "diploma.curriculumAndResults.evaluationDescription.grade.5" | translate }}</td>
+                </tr>
+                <tr>
+                    <td>{{ content.isLetterGrades ? 'B' : 4 }}</td>
+                    <td>{{ "diploma.curriculumAndResults.evaluationDescription.grade.4" | translate }}</td>
+                </tr>
+                <tr>
+                    <td>{{ content.isLetterGrades ? 'C' : 3 }}</td>
+                    <td>{{ "diploma.curriculumAndResults.evaluationDescription.grade.3" | translate }}</td>
+                </tr>
+                <tr>
+                    <td>{{ content.isLetterGrades ? 'D' : 2 }}</td>
+                    <td>{{ "diploma.curriculumAndResults.evaluationDescription.grade.2" | translate }}</td>
+                </tr>
+                <tr>
+                    <td>{{ content.isLetterGrades ? 'E' : 1 }}</td>
+                    <td>{{ "diploma.curriculumAndResults.evaluationDescription.grade.1" | translate }}</td>
+                </tr>
+                <tr>
+                    <td>{{ content.isLetterGrades ? 'F' : 0 }}</td>
+                    <td>{{ "diploma.curriculumAndResults.evaluationDescription.grade.0" | translate }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>{{ "diploma.curriculumAndResults.evaluationDescription.additional" | translate | replace({'%grade%': content.isLetterGrades ? 'E' : 1}) }}</div>
+    <h1>5. {{ "diploma.qualificationRights" | translate }}</h1>
+    <table class="general-info">
+        <tbody>
+            <tr><td>5.1. {{ "diploma.qualificationRights.continueStudy" | translate }}:</td><td>{{ content.final51 }}</td></tr>
+            <tr><td>5.2. {{ "diploma.qualificationRights.jobMarket" | translate }}:</td><td>{{ content.final52 }}</td></tr>
+        </tbody>
+    </table>
+    <h1>6. {{ "diploma.additionalInfo" | translate }}</h1>
+    <table class="general-info">
+        <tbody>
+            <tr><td>6.1. {{ "diploma.additionalInfo.info" | translate }}:</td><td>{{ content.final61 }}</td></tr>
+            <tr><td>6.2. {{ "diploma.additionalInfo.sources" | translate }}:</td><td></td></tr>
+            <tr>
+                <td class="bold">
+                    {{ content.final62 }}
+                </td>
+                <td>
+                    <div>Estonian ENIC/NARIC</div>
+                    <div>(Academic Recognition Information Centre)</div>
+                    <div>Archimedes Foundation</div>
+                    <div>L.Koidula 13 A</div>
+                    <div>10125 Tallinn</div>
+                    <div>ESTONIA</div>
+                    <div>www.archimedes.ee/enic</div>
+                    <div>Tel.: +372 697 92 15</div>
+                    <div>Fax.: +372 697 92 26</div>
+                    <div>E-mail: enic-naric@archimedes.ee</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <h1>7. {{ "diploma.confirmation" | translate }}</h1>
+    <table class="confirmation-info">
+        <tbody>
+            <tr><td>7.1. {{ "diploma.confirmation.date" | translate }}</td><td>{{ content.printed | hoisDate }}</td></tr>
+            <tr><td>7.2. {{ "diploma.confirmation.signatures" | translate }}</td></tr>
+            <tr><td>7.3. {{ "diploma.confirmation.names" | translate }}</td><td>{{ content.signer1Name }}</td><td>{{ content.signer2Name }}</td></tr>
+            <tr><td>7.4. {{ "diploma.confirmation.positions" | translate }}</td><td>{{ content.signer1Position }}</td><td>{{ content.signer2Position }}</td></tr>
+            <tr><td>7.5. {{ "diploma.confirmation.school" | translate }}</td></tr>
+        </tbody>
+    </table>
+    <h1>8. {{ "diploma.higherDescription" | translate }}</h1>
+    <div>{{ "diploma.higherDescription.url" | translate }} </div>
+    <div class="bold">https://www.hm.ee/en/activities/higher-education</div>
+  </body>
+</html>
